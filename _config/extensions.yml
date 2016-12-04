@@ -1,0 +1,9 @@
+---
+Name: modular-graph-extensions
+---
+Modular\Controller\GraphNode:
+  extensions:
+    - Modular\Extensions\Controller\GraphNode
+Modular\Models\GraphNode:
+  extensions:
+    - Modular\Extensions\Model\GraphNode
