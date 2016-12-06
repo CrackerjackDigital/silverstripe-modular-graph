@@ -10,7 +10,7 @@ class GraphNode extends \Modular\ContentControllerExtension {
 	 *
 	 * @param string            $forAction           a relationship type/action Code e.g. 'CRT' or empty for all
 	 * @param string|DataObject $actorModels         of the class related to the extended model,
-	 *                                               e.g. 'Member' or 'Organisation'
+	 *                                               e.g. 'Member' or 'SocialOrganisation'
 	 * @return \ArrayList of all ManyManyRelationships which match passed criteria.
 	 */
 	public function Actions($forAction = '', $actorModels = 'Member') {

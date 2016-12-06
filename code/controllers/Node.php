@@ -3,6 +3,6 @@ namespace Modular\Controllers;
 
 use Modular\Controller;
 
-class GraphNode extends Controller  {
+class GraphNode_Controller extends Controller  {
 
 }

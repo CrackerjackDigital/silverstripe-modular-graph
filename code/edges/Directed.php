@@ -8,7 +8,7 @@ namespace Modular\Edges;
  */
 use ArrayList;
 use DataObject;
-use Modular\Types\SocialActionType;
+use Modular\Types\SocialAction;
 use SS_List;
 
 class Directed extends \Modular\Model {
@@ -23,13 +23,13 @@ class Directed extends \Modular\Model {
 
 	// all social relationships have a ActionType
 	private static $has_one = [
-		'ActionType'   => 'ActionType',
+		'Type'   => '\Modular\Types\SocialAction',
 		'FromNode' => '\Modular\GraphNode',
 		'ToNode'   => '\Modular\GraphNode',
 	];
 
 	private static $summary_fields = [
-		'ActionType.Title'   => 'Relationship',
+		'Action.Title'   => 'Action',
 		'FromNode.Title' => 'From',
 		'ToNode.Title'   => 'To',
 	];
@@ -38,7 +38,7 @@ class Directed extends \Modular\Model {
 	 * Use subclasses of this class to find the ones that match the from and to models. One or both of from an to could be falsish, with both being falsish
 	 * being equivalent to all subclasses..
 	 *
-	 * @param string|array $fromModelClasses e.g. 'Member' or '' or [ 'Organisation', 'Forum' ]
+	 * @param string|array $fromModelClasses e.g. 'Member' or '' or [ 'SocialOrganisation', 'Forum' ]
 	 * @param string|array $toModelClasses   e.g. 'Member' or '' or [ 'Forum', 'ForumTopic' ]
 	 * @return array of SocialModel derived class names that handle from, to or both the passed model classes.
 	 */
@@ -46,7 +46,7 @@ class Directed extends \Modular\Model {
 		$fromModelClasses = is_array($fromModelClasses) ? $fromModelClasses : [$fromModelClasses];
 		$toModelClasses = is_array($toModelClasses) ? $toModelClasses : [$toModelClasses];
 		$classes = [];
-		/** @var string|SocialEdge $class */
+		/** @var string|SocialRelationship $class */
 		foreach (static::subclasses() as $class) {
 			foreach ($fromModelClasses as $fromModelClass) {
 				foreach ($toModelClasses as $toModelClass) {
@@ -74,7 +74,7 @@ class Directed extends \Modular\Model {
 		$fromClass = get_class($fromObject);
 		$toClass = static::to_class_name();
 
-		$relationshipTypeIDs = SocialActionType::get_heirarchy(
+		$relationshipTypeIDs = SocialAction::get_heirarchy(
 			$fromClass,
 			$toClass,
 			$relationshipTypeCodes
@@ -91,10 +91,10 @@ class Directed extends \Modular\Model {
 	/**
 	 * Returns objects related to the ToObject (so the 'from' objects) sorted by creation date ascending.
 	 *
-	 * e.g. for a MemberOrganisationRelationship given an Organisation
+	 * e.g. for a MemberOrganisationRelationship given an SocialOrganisation
 	 * will return its related Members.
 	 *
-	 * @param \DataObject  $toObject e.g. Organisation for a MemberOrganisationRelationship
+	 * @param \DataObject  $toObject e.g. SocialOrganisation for a MemberOrganisationRelationship
 	 * @param string|array $relationshipTypeCodes
 	 * @return \DataList of 'from' models
 	 * @api
@@ -103,7 +103,7 @@ class Directed extends \Modular\Model {
 		$fromClass = static::from_class_name();
 		$toClass = get_class($toObject);
 
-		$relationshipTypeIDs = SocialActionType::get_heirarchy(
+		$relationshipTypeIDs = SocialAction::get_heirarchy(
 			$fromClass,
 			$toClass,
 			$relationshipTypeCodes
@@ -128,27 +128,27 @@ class Directed extends \Modular\Model {
 	 * @param DataObject $toModel
 	 * @param            $relationshipTypeCodes      - csv string or array of
 	 *                                               relationship types or a
-	 *                                               ActionType object
+	 *                                               SocialAction object
 	 * @param bool       $createImpliedRelationships - also create relationships many many records listed in
-	 *                                               ActionType.ImpliedRelationshipTypes.
+	 *                                               SocialAction.ImpliedRelationshipTypes.
 	 * @return null
 	 * @api
 	 */
 	public static function make(DataObject $fromModel, DataObject $toModel, $relationshipTypeCodes, $createImpliedRelationships = true) {
 		// check permissions
-		if ($relationshipTypeCodes instanceof SocialActionType) {
+		if ($relationshipTypeCodes instanceof SocialAction) {
 			$relationshipTypeCodes = $relationshipTypeCodes->Code;
 		}
 		$relationship = null;
-		if (SocialActionType::check_permission($relationshipTypeCodes, $toModel, $fromModel)) {
+		if (SocialAction::check_permission($relationshipTypeCodes, $toModel, $fromModel)) {
 
-			$relationshipTypes = SocialActionType::get_heirarchy(
+			$relationshipTypes = SocialAction::get_heirarchy(
 				$fromModel,
 				$toModel,
 				$relationshipTypeCodes
 			);
 			if ($relationshipTypes->count()) {
-				/** @var SocialActionType $relationshipType */
+				/** @var SocialAction $relationshipType */
 				foreach ($relationshipTypes as $relationshipType) {
 					$archetype = [];
 
@@ -183,17 +183,17 @@ class Directed extends \Modular\Model {
 	 */
 	public static function remove(DataObject $fromModel, DataObject $toModel, $relationshipTypeCode) {
 		// check we have permissions to perform supplied relationship
-		if (SocialActionType::check_permission($relationshipTypeCode, $toModel, $fromModel)) {
-			$relationshipTypes = SocialActionType::get_for_models($fromModel, $toModel, $relationshipTypeCode);
+		if (SocialAction::check_permission($relationshipTypeCode, $toModel, $fromModel)) {
+			$relationshipTypes = SocialAction::get_for_models($fromModel, $toModel, $relationshipTypeCode);
 			if (!$relationshipTypes->count()) {
-				$relationshipTypes = SocialActionType::get_for_models(
+				$relationshipTypes = SocialAction::get_for_models(
 					$fromModel,
 					$toModel
 				)->filter('ParentCode', $relationshipTypeCode);
 			}
 
 			if ($relationshipTypes->count()) {
-				/** @var SocialActionType $relationshipType */
+				/** @var SocialAction $relationshipType */
 				foreach ($relationshipTypes as $relationshipType) {
 					$relationships = $relationshipType->buildRelationshipInstanceQuery(
 						$fromModel->ID,
@@ -236,8 +236,8 @@ class Directed extends \Modular\Model {
 	 * @api
 	 */
 	public static function actions(DataObject $fromObject, DataObject $toObject, $relationshipCode = '') {
-		/** @var SocialActionType $relationshipType */
-		$relationshipType = SocialActionType::get_by_code($relationshipCode);
+		/** @var SocialAction $relationshipType */
+		$relationshipType = SocialAction::get_by_code($relationshipCode);
 
 		if ($relationshipType) {
 			return $relationshipType->buildRelationshipInstanceQuery(
@@ -288,7 +288,7 @@ class Directed extends \Modular\Model {
 			static::to_field_name()   => $toModel->ID,
 		]);
 		if ($relationshipTypeCodes) {
-			$relationships = $relationships->filter('ActionType.Code', $relationshipTypeCodes);
+			$relationships = $relationships->filter('Type.Code', $relationshipTypeCodes);
 		}
 		return $relationships;
 	}
