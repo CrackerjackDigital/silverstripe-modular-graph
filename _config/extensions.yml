@@ -6,4 +6,7 @@ Modular\Controller\GraphNode:
     - Modular\Extensions\Controller\GraphNode
 Modular\Models\GraphNode:
   extensions:
-    - Modular\Extensions\Model\GraphNode
+    - Modular\Fields\GraphRef
+Modular\Models\GraphEdge:
+  extensions:
+    - Modular\Fields\GraphRef

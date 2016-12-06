@@ -1,10 +1,9 @@
 <?php
 namespace Modular\Models;
 
-class GraphNode extends \Modular\Model {
-	private static $db = [];
-	private static $has_one = [];
+use Modular\Model;
 
+class GraphNode extends Model implements \Modular\Interfaces\GraphNode {
 	public function getModelClass() {
 		return get_class($this);
 	}
@@ -16,5 +15,4 @@ class GraphNode extends \Modular\Model {
 	public function getModelInstance() {
 		return $this;
 	}
-
 }
