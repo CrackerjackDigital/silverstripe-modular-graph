@@ -12,14 +12,20 @@ use Modular\Interfaces\GraphEdge;
 
 /** abstract if SS would allow it */
 class Directed extends \Modular\Models\GraphEdge {
-	const FromClassName = '';
-	const FromFieldName = '';
+	const FromClassName = 'Modular\Models\GraphNode';
+	const FromFieldName = 'FromNode';
 
-	const ToClassName = '';
-	const ToFieldName = '';
+	const ToClassName = 'Modular\Models\GraphNode';
+	const ToFieldName = 'ToNode';
 
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
+
+	private static $from_class_name = self::FromClassName;
+	private static $from_field_name = self::FromFieldName;
+
+	private static $to_class_name = self::ToClassName;
+	private static $to_field_name = self::ToFieldName;
 
 	/**
 	 * Really just for nice 'Directed' style parameter names.
@@ -106,19 +112,36 @@ class Directed extends \Modular\Models\GraphEdge {
 	}
 
 	public static function node_a_class_name($fieldName = '') {
-		return static::FromClassName ? (static::FromFieldName . ($fieldName ? ".$fieldName" : '')) : parent::node_a_class_name($fieldName);
+		return static::config()->get('from_class_name')
+			?: (static::FromClassName
+				? (static::FromFieldName . ($fieldName ? ".$fieldName" : ''))
+				: parent::node_a_class_name($fieldName)
+			);
 	}
 
 	public static function node_b_class_name($fieldName = '') {
-		return static::ToClassName ? (static::ToClassName . ($fieldName ? ".$fieldName" : '')) : parent::node_b_class_name($fieldName);
+		return static::config()->get('to_class_name')
+			?: (static::ToClassName
+				? (static::ToFieldName . ($fieldName ? ".$fieldName" : ''))
+				: parent::node_b_class_name($fieldName)
+			);
 	}
 
 	public static function node_a_field_name($suffix = '') {
-		return static::FromFieldName ? (static::FromFieldName . $suffix) : parent::node_a_field_name($suffix);
+		return static::config()->get('from_field_name')
+			?: (static::FromFieldName
+				? (static::FromFieldName . $suffix)
+				: parent::node_a_field_name($suffix)
+			);
+
 	}
 
 	public static function node_b_field_name($suffix = '') {
-		return static::ToFieldName ? (static::ToFieldName . $suffix) : parent::node_b_field_name($suffix);
+		return static::config()->get('to_field_name')
+			?: (static::ToFieldName
+				? (static::ToFieldName . $suffix)
+				: parent::node_b_field_name($suffix)
+			);
 	}
 
 }

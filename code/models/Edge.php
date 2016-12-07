@@ -371,14 +371,6 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		return static::TypeFieldName ? (static::TypeFieldName . $suffix) : '';
 	}
 
-	public static function node_a_class_name($fieldName = '') {
-		return static::NodeAClassName ? (static::NodeAClassName . ($fieldName ? ".$fieldName" : '')) : '';
-	}
-
-	public static function node_a_field_name($suffix = 'ID') {
-		return static::NodeAFieldName ? (static::NodeAFieldName . $suffix) : '';
-	}
-
 	public static function node_a_label() {
 		return _t(static::node_a_class_name() . ".EdgeLabel", static::NodeALabel);
 	}
@@ -387,11 +379,19 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		return _t(static::node_b_class_name() . ".EdgeLabel", static::NodeBLabel);
 	}
 
-	public static function node_b_class_name($fieldName = '') {
+	protected static function node_a_class_name($fieldName = '') {
+		return static::NodeAClassName ? (static::NodeAClassName . ($fieldName ? ".$fieldName" : '')) : '';
+	}
+
+	protected static function node_a_field_name($suffix = 'ID') {
+		return static::NodeAFieldName ? (static::NodeAFieldName . $suffix) : '';
+	}
+
+	protected static function node_b_class_name($fieldName = '') {
 		return static::NodeBClassName ? (static::NodeBClassName . ($fieldName ? ".$fieldName" : '')) : '';
 	}
 
-	public static function node_b_field_name($suffix = 'ID') {
+	protected static function node_b_field_name($suffix = 'ID') {
 		return static::NodeBFieldName ? (static::NodeBFieldName . $suffix) : '';
 	}
 
