@@ -1,5 +1,8 @@
 <?php
 namespace Modular\Interfaces;
+
+use DataObject;
+
 /**
  * A model or type which is to be used as an Edge should implement this interface
  *
@@ -18,26 +21,19 @@ interface GraphEdgeType extends Graph {
 	public static function check_permission($typeCode, $nodeBModel, $nodeAModel);
 
 	/**
-	 * Return a list of EdgeTypes which satisfy the from, to and typeCodes, e.g. on a SocialAction this
-	 * would be SocialActions allowed from $nodeA to $nodeB with provided type code(s)
+	 * Return a list of edge types
+	 * e.g. given 'Member', 'Organisation' return all allowed edge type between the two
+	 *      given 'Member', null return all allowed edge types from a Member
+	 *      given nul, 'Organisation' return all allowed edge types to an Organisation
 	 *
-	 * @param              $nodeAModel
-	 * @param              $nodeBModel
-	 * @param string|array $typeCodes
-	 * @return \DataList|\ArrayList
+	 * @param  DataObject|string|null $nodeAModel
+	 * @param  DataObject|string|null $nodeBModel
+	 * @return \DataList
 	 */
-	public static function get_by_edge_type_code($nodeAModel, $nodeBModel, $typeCodes = []);
+	public static function get_by_models($nodeAModel, $nodeBModel);
 
 	/**
-	 * Return the name of the field to use when searching on 'codes' for the edge type,
-	 * e.g. for a SocialAction this would be 'Code'
-	 *
-	 * @return string
-	 */
-	public static function edge_type_field_name();
-
-	/**
-	 * Build a query used in checking a SocialAction exists for the codes.
+	 * Build a query used in checking a SocialActionType exists for the codes.
 	 */
 	public function buildGraphEdgeTypeQuery();
 
@@ -54,7 +50,7 @@ interface GraphEdgeType extends Graph {
 	 * table which match the passed in object IDs. e.g. MemberOrganisation with
 	 * Member.ID = $formObjectID and OrganisationModelID = $toModelID
 	 *
-	 * NB we take ints not models here as the model class etc comes from instance of SocialAction
+	 * NB we take ints not models here as the model class etc comes from instance of SocialActionType
 	 *
 	 * @param int  $nodeAID
 	 * @param int  $nodeBID

@@ -3,6 +3,7 @@ namespace Modular\Models;
 
 use Modular\Model;
 
+/* abstract */
 class GraphNode extends Model implements \Modular\Interfaces\GraphNode {
 	public function getModelClass() {
 		return get_class($this);

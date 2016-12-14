@@ -10,22 +10,21 @@ use DataList;
 use DataObject;
 use Modular\Interfaces\GraphEdge;
 
-/** abstract if SS would allow it */
+/* abstract */
 class Directed extends \Modular\Models\GraphEdge {
-	const FromClassName = 'Modular\Models\GraphNode';
-	const FromFieldName = 'FromNode';
-
-	const ToClassName = 'Modular\Models\GraphNode';
-	const ToFieldName = 'ToNode';
+	const NodeAFieldName = 'FromModel';
+	const NodeBFieldName = 'ToModel';
 
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
 
-	private static $from_class_name = self::FromClassName;
-	private static $from_field_name = self::FromFieldName;
+	// these should be override in derived classes or config
+	private static $from_class_name = '';
+	private static $to_class_name = '';
 
-	private static $to_class_name = self::ToClassName;
-	private static $to_field_name = self::ToFieldName;
+	private static $from_field_name = '';
+	private static $to_field_name = '';
+
 
 	/**
 	 * Really just for nice 'Directed' style parameter names.
@@ -83,7 +82,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @return DataList
 	 */
 	public function from($fromModel, $actionCodes = []) {
-		return parent::nodeA($fromModel, $actionCodes);
+		return parent::node_a_for_type($fromModel, $actionCodes);
 	}
 
 	/**
@@ -92,7 +91,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @return DataList
 	 */
 	public function to($toModel, $actionCodes = []) {
-		return parent::nodeB($toModel, $actionCodes);
+		return parent::node_b_for_type($toModel, $actionCodes);
 	}
 
 	public static function from_class_name($fieldName = '') {
@@ -113,24 +112,24 @@ class Directed extends \Modular\Models\GraphEdge {
 
 	public static function node_a_class_name($fieldName = '') {
 		return static::config()->get('from_class_name')
-			?: (static::FromClassName
-				? (static::FromFieldName . ($fieldName ? ".$fieldName" : ''))
+			?: (static::NodeAClassName
+				? (static::NodeAFieldName . ($fieldName ? ".$fieldName" : ''))
 				: parent::node_a_class_name($fieldName)
 			);
 	}
 
 	public static function node_b_class_name($fieldName = '') {
 		return static::config()->get('to_class_name')
-			?: (static::ToClassName
-				? (static::ToFieldName . ($fieldName ? ".$fieldName" : ''))
+			?: (static::NodeBClassName
+				? (static::NodeBFieldName . ($fieldName ? ".$fieldName" : ''))
 				: parent::node_b_class_name($fieldName)
 			);
 	}
 
 	public static function node_a_field_name($suffix = '') {
 		return static::config()->get('from_field_name')
-			?: (static::FromFieldName
-				? (static::FromFieldName . $suffix)
+			?: (static::NodeAClassName
+				? (static::NodeAFieldName . $suffix)
 				: parent::node_a_field_name($suffix)
 			);
 
@@ -138,8 +137,8 @@ class Directed extends \Modular\Models\GraphEdge {
 
 	public static function node_b_field_name($suffix = '') {
 		return static::config()->get('to_field_name')
-			?: (static::ToFieldName
-				? (static::ToFieldName . $suffix)
+			?: (static::NodeBFieldName
+				? (static::NodeBFieldName . $suffix)
 				: parent::node_b_field_name($suffix)
 			);
 	}
