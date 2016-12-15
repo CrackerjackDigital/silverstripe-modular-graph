@@ -9,8 +9,10 @@ namespace Modular\Edges;
 use DataList;
 use DataObject;
 use Modular\Interfaces\GraphEdge;
+use Modular\Interfaces\GraphEdgeType;
 
 /* abstract */
+
 class Directed extends \Modular\Models\GraphEdge {
 	const NodeAFieldName = 'FromModel';
 	const NodeBFieldName = 'ToModel';
@@ -25,23 +27,85 @@ class Directed extends \Modular\Models\GraphEdge {
 	private static $from_field_name = '';
 	private static $to_field_name = '';
 
+	/**
+	 * Make more
+	 * @param       $fromModel
+	 * @param       $toModel
+	 * @param array $typeCodes
+	 * @return \DataList
+	 */
+	public static function get_for_models($fromModel, $toModel, $typeCodes = []) {
+		return static::graph($fromModel, $toModel, $typeCodes);
+	}
 
 	/**
 	 * Really just for nice 'Directed' style parameter names.
 	 *
-	 * @param DataObject $from
-	 * @param DataObject $to
+	 * @param DataObject $fromModel
+	 * @param DataObject $toModel
 	 * @param array      $typeCodes
 	 * @return DataList
 	 */
-	public static function graph($from, $to, $typeCodes = []) {
-		return parent::graph($from, $to, $typeCodes);
+	public static function graph($fromModel, $toModel, $typeCodes = [], $action = 'action') {
+		return parent::graph($fromModel, $toModel, $typeCodes, $action);
+	}
+
+	/**
+	 * Return one if any found, not in any special order.
+	 *
+	 * @param        $fromModel
+	 * @param        $toModel
+	 * @param array  $typeCodes
+	 * @param string $action
+	 * @return \DataObject
+	 */
+	public static function one($fromModel, $toModel, $typeCodes = [], $action = 'action') {
+		return static::graph($fromModel, $toModel, $typeCodes, $action)->first();
+	}
+
+	/**
+	 * Return tha latest model which satisfies the supplied parameters.
+	 *
+	 * @param        $fromModel
+	 * @param        $toModel
+	 * @param array  $typeCodes
+	 * @param string $action
+	 * @return \DataObject
+	 */
+	public static function latest($fromModel, $toModel, $typeCodes = [], $action = '') {
+		return static::graph($fromModel, $toModel, $typeCodes, $action)->sort('Created', 'Desc')->first();
+	}
+
+	/**
+	 * Return tha oldest model which satisfies the supplied parameters.
+	 *
+	 * @param        $fromModel
+	 * @param        $toModel
+	 * @param array  $typeCodes
+	 * @param string $action
+	 * @return \DataObject
+	 */
+	public static function oldest($fromModel, $toModel, $typeCodes = [], $action = '') {
+		return static::graph($fromModel, $toModel, $typeCodes, $action)->sort('Created', 'Asc')->first();
+	}
+
+	/**
+	 * Return a list of class names which implement an Edge from a model to another model.
+	 *
+	 * @inheritdoc
+	 *
+	 * @param DataObject|string|null $fromModel
+	 * @param DataObject|string|null $toModel
+	 * @return array list of implementation class names
+	 */
+	public static function implementors($fromModel, $toModel) {
+		return parent::implementors($fromModel, $toModel);
 	}
 
 	/**
 	 * Add directed type 'From' syntax
 	 *
-	 * @param \Modular\Interfaces\GraphNode
+	 * @param \Modular\Interfaces\GraphNode|DataObject
 	 * @return GraphEdge
 	 */
 	public function setFrom($model) {
@@ -51,7 +115,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'From' syntax
 	 *
-	 * @return \Modular\Interfaces\GraphNode
+	 * @return \Modular\Interfaces\GraphNode|DataObject
 	 */
 	public function getFrom() {
 		return parent::getNodeA();
@@ -60,7 +124,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'To' syntax
 	 *
-	 * @param \Modular\Interfaces\GraphNode $model
+	 * @param \Modular\Interfaces\GraphNode|DataObject $model
 	 * @return GraphEdge
 	 */
 	public function setTo($model) {
@@ -70,7 +134,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'To' syntax
 	 *
-	 * @return \Modular\Interfaces\GraphNode
+	 * @return \Modular\Interfaces\GraphNode|DataObject
 	 */
 	public function getTo() {
 		return parent::getNodeB();
@@ -78,34 +142,46 @@ class Directed extends \Modular\Models\GraphEdge {
 
 	/**
 	 * @param DataObject   $fromModel
-	 * @param string|array $actionCodes e.g. 'CRT', 'REG'
+	 * @param string|array $typeCodes e.g. 'CRT', 'REG'
 	 * @return DataList
 	 */
-	public function from($fromModel, $actionCodes = []) {
-		return parent::node_a_for_type($fromModel, $actionCodes);
+	public static function from($fromModel, $typeCodes = []) {
+		return parent::node_a_for_type($fromModel, $typeCodes);
 	}
 
 	/**
 	 * @param DataObject   $toModel
-	 * @param string|array $actionCodes e.g. 'CRT', 'REG'
+	 * @param string|array $typeCodes e.g. 'CRT', 'REG'
 	 * @return DataList
 	 */
-	public function to($toModel, $actionCodes = []) {
-		return parent::node_b_for_type($toModel, $actionCodes);
+	public static function to($toModel, $typeCodes = []) {
+		return parent::node_b_for_type($toModel, $typeCodes);
 	}
 
+	/**
+	 * friendly name for node_a_class_name
+	 */
 	public static function from_class_name($fieldName = '') {
 		return static::node_a_class_name($fieldName);
 	}
 
+	/**
+	 * friendly name for node_a_field_name
+	 */
 	public static function from_field_name($suffix = 'ID') {
 		return static::node_a_field_name($suffix);
 	}
 
+	/**
+	 * friendly name for node_b_class_name
+	 */
 	public static function to_class_name($fieldName = '') {
 		return static::node_b_class_name($fieldName);
 	}
 
+	/**
+	 * friendly name for node_b_field_name
+	 */
 	public static function to_field_name($suffix = 'ID') {
 		return static::node_b_field_name($suffix);
 	}

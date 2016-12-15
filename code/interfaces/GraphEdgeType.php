@@ -11,14 +11,29 @@ use DataObject;
 interface GraphEdgeType extends Graph {
 
 	/**
+	 * Return a graph edge type by it's code.
+	 *
+	 * @param string $typeCode
+	 * @return GraphEdgeType|null
+	 */
+	public static function get_by_identity($typeCode);
+
+	/**
+	 * Return the name of the field on this edge type used to find them, e.g. 'Code'.
+	 *
+	 * @return string
+	 */
+	public static function identity_field_name($suffix = '');
+
+	/**
 	 * Check we can perform the action represented by the type
 	 *
 	 * @param $typeCode
-	 * @param $nodeBModel
 	 * @param $nodeAModel
+	 * @param $nodeBModel
 	 * @return bool
 	 */
-	public static function check_permission($typeCode, $nodeBModel, $nodeAModel);
+	public static function check_permission($typeCode, $nodeAModel, $nodeBModel);
 
 	/**
 	 * Return a list of edge types
@@ -26,37 +41,21 @@ interface GraphEdgeType extends Graph {
 	 *      given 'Member', null return all allowed edge types from a Member
 	 *      given nul, 'Organisation' return all allowed edge types to an Organisation
 	 *
-	 * @param  DataObject|string|null $nodeAModel
-	 * @param  DataObject|string|null $nodeBModel
-	 * @return \DataList
+	 * @param  DataObject|string|null $fromModelClass
+	 * @param  DataObject|string|null $toModelClass
+	 * @param array                   $typeCodes
+	 * @return \DataList of GraphEdgeType derived classes
 	 */
-	public static function get_by_models($nodeAModel, $nodeBModel);
+	public static function get_for_models($fromModelClass, $toModelClass, $typeCodes = []);
 
 	/**
-	 * Build a query used in checking a SocialActionType exists for the codes.
-	 */
-	public function buildGraphEdgeTypeQuery();
-
-	/**
-	 * Build a filter array
+	 * Build a filter to fetch all GraphEdgesTypes based on this GraphEdgeType instance's settings
 	 *
-	 * @param $typeCodes
-	 * @return array e.g. ['AllowedFrom' => 'ModelA', 'AllowedTo' => 'ModelB' ]
+	 * @param DataObject|string $nodeAClass
+	 * @param DataObject|string $nodeBClass
+	 * @param array             $typeCodes
+	 * @return array e.g. ['FromModel' => 'ModelA', 'ToModel' => 'ModelB', 'Code' => 'CRT' ]
 	 */
-	public function buildGraphEdgeTypeArchetype();
-
-	/**
-	 * Returns a query which uses this GraphEdgeType to find records in a relationship (previous action performed)
-	 * table which match the passed in object IDs. e.g. MemberOrganisation with
-	 * Member.ID = $formObjectID and OrganisationModelID = $toModelID
-	 *
-	 * NB we take ints not models here as the model class etc comes from instance of SocialActionType
-	 *
-	 * @param int  $nodeAID
-	 * @param int  $nodeBID
-	 * @param null $archetype
-	 * @return \SS_List
-	 */
-	public function buildGraphEdgeTypeInstanceQuery($nodeAID, $nodeBID, &$archetype = null);
+	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []);
 
 }
