@@ -1,8 +1,8 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Graph;
 
 use Modular\Controller;
 
-class GraphNode_Controller extends Controller  {
+class NodeController extends Controller  {
 
 }

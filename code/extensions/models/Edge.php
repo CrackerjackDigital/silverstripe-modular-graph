@@ -1,16 +1,16 @@
 <?php
-namespace Modular\Extensions\Model;
+namespace Modular\Extensions\Model\Graph;
 
 use Modular\ModelExtension;
 
 /**
- * GraphEdge
+ * Edge
  *
  * @package Modular\Extensions\Model
  * @property int FromNodeID
  * @property int ToNodeID
  */
-class GraphEdge extends ModelExtension {
+class Edge extends ModelExtension {
 
 	/**
 	 * Add has_one relationships from node a to node b

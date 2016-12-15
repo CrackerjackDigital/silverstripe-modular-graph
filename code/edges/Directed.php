@@ -8,12 +8,11 @@ namespace Modular\Edges;
  */
 use DataList;
 use DataObject;
-use Modular\Interfaces\GraphEdge;
-use Modular\Interfaces\GraphEdgeType;
+use Modular\Interfaces\Graph\Edge;
 
 /* abstract */
 
-class Directed extends \Modular\Models\GraphEdge {
+class Directed extends \Modular\Models\Graph\Edge {
 	const NodeAFieldName = 'FromModel';
 	const NodeBFieldName = 'ToModel';
 
@@ -46,7 +45,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @param array      $typeCodes
 	 * @return DataList
 	 */
-	public static function graph($fromModel, $toModel, $typeCodes = [], $action = 'action') {
+	public static function graph($fromModel, $toModel, $typeCodes = [], $action = '') {
 		return parent::graph($fromModel, $toModel, $typeCodes, $action);
 	}
 
@@ -59,7 +58,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @param string $action
 	 * @return \DataObject
 	 */
-	public static function one($fromModel, $toModel, $typeCodes = [], $action = 'action') {
+	public static function one($fromModel, $toModel, $typeCodes = [], $action = '') {
 		return static::graph($fromModel, $toModel, $typeCodes, $action)->first();
 	}
 
@@ -105,8 +104,8 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'From' syntax
 	 *
-	 * @param \Modular\Interfaces\GraphNode|DataObject
-	 * @return GraphEdge
+	 * @param \Modular\Interfaces\Graph\Node|DataObject
+	 * @return Edge
 	 */
 	public function setFrom($model) {
 		return parent::setNodeA($model);
@@ -115,7 +114,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'From' syntax
 	 *
-	 * @return \Modular\Interfaces\GraphNode|DataObject
+	 * @return \Modular\Interfaces\Graph\Node|DataObject
 	 */
 	public function getFrom() {
 		return parent::getNodeA();
@@ -124,8 +123,8 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'To' syntax
 	 *
-	 * @param \Modular\Interfaces\GraphNode|DataObject $model
-	 * @return GraphEdge
+	 * @param \Modular\Interfaces\Graph\Node|DataObject $model
+	 * @return Edge
 	 */
 	public function setTo($model) {
 		return parent::setNodeB($model);
@@ -134,7 +133,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	/**
 	 * Add directed type 'To' syntax
 	 *
-	 * @return \Modular\Interfaces\GraphNode|DataObject
+	 * @return \Modular\Interfaces\Graph\Node|DataObject
 	 */
 	public function getTo() {
 		return parent::getNodeB();
@@ -145,7 +144,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @param string|array $typeCodes e.g. 'CRT', 'REG'
 	 * @return DataList
 	 */
-	public static function from($fromModel, $typeCodes = []) {
+	public static function from_models($fromModel, $typeCodes = []) {
 		return parent::node_a_for_type($fromModel, $typeCodes);
 	}
 
@@ -154,7 +153,7 @@ class Directed extends \Modular\Models\GraphEdge {
 	 * @param string|array $typeCodes e.g. 'CRT', 'REG'
 	 * @return DataList
 	 */
-	public static function to($toModel, $typeCodes = []) {
+	public static function to_models($toModel, $typeCodes = []) {
 		return parent::node_b_for_type($toModel, $typeCodes);
 	}
 

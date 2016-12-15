@@ -1,7 +1,9 @@
 <?php
-namespace Modular\Interfaces;
+namespace Modular\Interfaces\Graph;
 
-interface GraphEdge extends Graph {
+use Modular\Interfaces\Graph;
+
+interface Edge extends Graph {
 
 	/**
 	 * Do whatever it takes to get this edge out of the system.

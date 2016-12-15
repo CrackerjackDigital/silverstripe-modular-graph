@@ -1,36 +1,36 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Graph;
 
 use ArrayList;
 use DataList;
 use DataObject;
 use Modular\Edges\SocialRelationship;
 use Modular\Exceptions\Graph as Exception;
-use Modular\Interfaces\GraphEdgeType;
-use Modular\Types\SocialActionType;
+use Modular\Interfaces\Graph\EdgeType;
+use Modular\Types\Social\ActionType;
 
 /**
- * GraphEdge
+ * Edge
  *
  * @package Modular\Models
- * @property GraphNode FromNode
- * @property GraphNode ToNode
+ * @property Node FromNode
+ * @property Node ToNode
  *
  */
 
 /** abstract if SS would allow it */
-class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge {
+class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 
 	const EdgeTypeClassName = '';           # 'Modular\Types\GraphEdgeType' or derived class
 	const EdgeTypeFieldName = 'EdgeType';   #
 
 	const TypeVariantFieldName = ''; # 'Action'
 
-	const NodeAClassName = '';       # 'Modular\Models\GraphNode' or 'Member'
+	const NodeAClassName = '';       # 'Modular\Models\Node' or 'Member'
 	const NodeAFieldName = '';       # 'FromModel'
 	const NodeALabel     = 'Node A';
 
-	const NodeBClassName = '';         # 'Modular\Models\GraphNode' or 'Modular\Models\SocialOrganisation'
+	const NodeBClassName = '';         # 'Modular\Models\Node' or 'Modular\Models\SocialOrganisation'
 	const NodeBFieldName = '';         # 'ToModel'
 	const NodeBLabel     = 'Node B';
 
@@ -39,10 +39,10 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 	/**
 	 * Returns a list of all edges which match on supplied models, edge types and edge type variants, not necessarily in any order.
 	 *
-	 * @param DataObject|int $nodeA a model or an ID
-	 * @param DataObject|int $nodeB a model or an ID
+	 * @param DataObject|int $nodeA       a model or an ID
+	 * @param DataObject|int $nodeB       a model or an ID
 	 * @param array          $typeCodes
-	 * @param string         $typeVariant
+	 * @param string         $typeVariant filter also by extra data set on the Edge
 	 * @return \DataList
 	 */
 	protected static function graph($nodeA, $nodeB, $typeCodes = [], $typeVariant = '') {
@@ -60,16 +60,14 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 			]);
 		}
 		if ($typeCodes) {
-			/** @var GraphEdgeType $typeClassName */
-			$typeClassName = static::type_class_name();
-
-			$typeIDs = $typeClassName::get_for_models(
+			$typeIDs = EdgeType::get_for_models(
 				static::node_a_class_name(),
-				static::node_b_class_name()
-			)->filter(static::edge_type_code_field_name(), $typeCodes)->column('ID');
+				static::node_b_class_name(),
+				$typeCodes
+			)->column('ID');
 
 			$graph = $graph->filter([
-				static::type_field_name('.ID') => $typeIDs,
+				static::type_field_name() => $typeIDs,
 			]);
 		}
 		if ($typeVariant) {
@@ -96,28 +94,28 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 	}
 
 	/**
-	 * Return a list of concrete GraphEdge model class names which implement an edge between two Nodes,
-	 * or if null then entering or leaving the other Node class. If both null will return all GraphEdge implementor class names.
+	 * Return a list of concrete Edge model class names which implement an edge between two Nodes,
+	 * or if null then entering or leaving the other Node class. If both null will return all Edge implementor class names.
 	 *
-	 * @param DataObject|string|null $nodeA
-	 * @param DataObject|string|null $nodeB
+	 * @param DataObject|string $nodeAClass
+	 * @param DataObject|string $nodeBClass
 	 * @return array list of implementation class names
 	 */
-	protected static function implementors($nodeA, $nodeB) {
-		$nodeAModelClass = is_object($nodeA) ? get_class($nodeA) : $nodeA;
-		$nodeBModelClass = is_object($nodeB) ? get_class($nodeB) : $nodeB;
+	protected static function implementors($nodeAClass, $nodeBClass) {
+		$nodeAClass = static::derive_class_name($nodeAClass);
+		$nodeBClass = static::derive_class_name($nodeBClass);
 
 		$implementors = [];
 
 		$subclasses = static::subclasses();
-		/** @var GraphEdge|string $subclass */
+		/** @var Edge|string $subclass */
 		foreach ($subclasses as $subclass) {
 			$nodeAMatch = $nodeBMatch = false;
 
-			if (!$nodeAModelClass || ($subclass::node_a_class_name() == $nodeAModelClass)) {
+			if (!$nodeAClass || ($subclass::node_a_class_name() == $nodeAClass)) {
 				$nodeAMatch = true;
 			}
-			if (!$nodeBModelClass || ($subclass::node_b_class_name() == $nodeBModelClass)) {
+			if (!$nodeBClass || ($subclass::node_b_class_name() == $nodeBClass)) {
 				$nodeBMatch = true;
 			}
 			if ($nodeAMatch || $nodeBMatch) {
@@ -128,8 +126,8 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 	}
 
 	/**
-	 * @param DataObject|GraphEdgeType|string|int $edgeType
-	 * @param string|array                        $variantData optional to set on Edge record
+	 * @param DataObject|EdgeType|string|int $edgeType
+	 * @param string|array                   $variantData optional to set on Edge record
 	 * @return $this
 	 * @throws \Modular\Exceptions\Graph
 	 */
@@ -137,14 +135,13 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		// yes this is meant to be an '=', the value is being saved for use later in exception.
 		if ($requested = $edgeType) {
 			if (!is_object($edgeType)) {
+				/** @var EdgeType $edgeTypeClass */
 				$edgeTypeClass = static::type_class_name();
 
 				if (is_int($edgeType)) {
-					$edgeType = \DataObject::get($edgeTypeClass)->byID($edgeType);
+					$edgeType = EdgeType::get_by_id($edgeType);
 				} else {
-					$edgeType = \DataObject::get($edgeTypeClass)->filter([
-						static::edge_type_code_field_name() => $edgeType,
-					])->first();
+					$edgeType = EdgeType::get_by_code($edgeTypeClass);
 				}
 				if (!$edgeType) {
 					throw new Exception("Couldn't find a '$edgeTypeClass' using '$requested'");
@@ -159,7 +156,7 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		}
 		$this->{static::type_field_name('ID')} = $edgeType;
 
-		// now set the variant data on the GraphEdge if passed
+		// now set the variant data on the Edge if passed
 		if ($edgeType) {
 			if (is_array($variantData)) {
 				$this->update($variantData);
@@ -276,11 +273,11 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 	/**
 	 * Create an Edge or edges between the two models with the provided edge types.
 	 *
-	 * @param DataObject                      $nodeAModel
-	 * @param DataObject                      $nodeBModel
-	 * @param string|GraphEdgeType|DataObject $typeCode             Code string or a GraphEdgeType model
-	 * @param array|string                    $variantData          Extra data to set on the created GraphEdge(s)
-	 * @param bool                            $createImpliedActions also create relationships many many records listed in the GraphEdgeType.ImpliedTypes.
+	 * @param DataObject                 $nodeAModel
+	 * @param DataObject                 $nodeBModel
+	 * @param string|EdgeType|DataObject $typeCode             Code string or a GraphEdgeType model
+	 * @param array|string               $variantData          Extra data to set on the created Edge(s)
+	 * @param bool                       $createImpliedActions also create relationships many many records listed in the GraphEdgeType.ImpliedTypes.
 	 * @return \ArrayList of all edges created (including Implied ones if requested to)
 	 * @throws \Modular\Exceptions\Graph
 	 * @api
@@ -297,16 +294,16 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		$edges = new ArrayList();
 
 		// get a list of GraphEdgeType records (e.g. SocialActionType) between teo models and which handle the provided codes.
-		$edgeTypes = GraphEdgeType::get_for_models($nodeAModel, $nodeBModel, $typeCode);
+		$edgeTypes = EdgeType::get_for_models($nodeAModel, $nodeBModel, $typeCode);
 
-		/** @var GraphEdgeType|SocialActionType $edgeType e.g. a SocialActionType implementor */
+		/** @var EdgeType|ActionType $edgeType e.g. a SocialActionType implementor */
 		foreach ($edgeTypes as $edgeType) {
 
 			if ($edgeType::check_permission($typeCode, $nodeAModel, $nodeBModel)) {
 				// get all the Edge implementation class names between the two models.
-				$edgeClasses = GraphEdge::implementors($nodeAModel, $nodeBModel);
+				$edgeClasses = Edge::implementors($nodeAModel, $nodeBModel);
 
-				/** @var GraphEdge $edge */
+				/** @var Edge $edge */
 				foreach ($edgeClasses as $edgeClass) {
 					$edge = new $edgeClass();
 
@@ -329,23 +326,26 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 		}
 		return $edges;
 	}
+
 	/**
 	 * Remove all relationships of a particular type between two models. Only one type allowed!
 	 *
 	 * @param DataObject $nodeAModel
 	 * @param DataObject $nodeBModel
 	 * @param string     $typeCode
+	 * @param string     $variantType e.g. the action performed, such as 'accept' or 'decline'
 	 * @return bool true if all removed, false if not (e.g. if no permissions or removing one of them failed).
 	 *
 	 * @api
 	 */
-	public static function removeAll(DataObject $nodeAModel, DataObject $nodeBModel, $typeCode) {
+	public static function remove(DataObject $nodeAModel, DataObject $nodeBModel, $typeCode, $variantType = '') {
 		// check we have permissions to perform supplied relationship
-		if ($ok = GraphEdgeType::check_permission($typeCode, $nodeAModel, $nodeBModel)) {
+		if ($ok = EdgeType::check_permission($typeCode, $nodeAModel, $nodeBModel)) {
 			$edges = SocialRelationship::graph(
 				$nodeAModel,
 				$nodeBModel,
-				$typeCode
+				$typeCode,
+				$variantType
 			);
 			/** @var \Modular\Interfaces\GraphEdge $edge */
 			foreach ($edges as $edge) {
@@ -431,13 +431,13 @@ class GraphEdge extends \Modular\Model implements \Modular\Interfaces\GraphEdge 
 	 * @return string
 	 */
 	public static function edge_type_identity_field_name($suffix = '') {
-		/** @var GraphEdgeType $typeClassName */
+		/** @var EdgeType $typeClassName */
 		$typeClassName = static::type_class_name();
-		return $typeClassName::identity_field_name($suffix);
+		return $typeClassName::code_field_name($suffix);
 	}
 
 	/**
-	 * Return the name of the GraphEdgeType class for this GraphEdge.
+	 * Return the name of the GraphEdgeType class for this Edge.
 	 *
 	 * @param string $fieldName optionally appended with a '.' e.g. for use when making a relationship join
 	 * @return string

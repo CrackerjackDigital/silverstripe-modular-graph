@@ -3,11 +3,11 @@ Name: modular-graph-extensions
 ---
 Modular\Controller\GraphNode:
   extensions:
-    - Modular\Extensions\Controller\GraphNode
+    - Modular\Extensions\Controller\Graph\Node
 Modular\Models\GraphNode:
   extensions:
     - Modular\Fields\GraphRef
-    - Modular\Extensions\Model\GraphNode
+    - Modular\Extensions\Model\Graph\Node
 Modular\Models\GraphEdge:
   extensions:
     - Modular\Fields\GraphRef

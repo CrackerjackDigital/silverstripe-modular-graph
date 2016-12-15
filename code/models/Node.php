@@ -1,10 +1,10 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Graph;
 
 use Modular\Model;
 
 /* abstract */
-class GraphNode extends Model implements \Modular\Interfaces\GraphNode {
+class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	public function getModelClass() {
 		return get_class($this);
 	}

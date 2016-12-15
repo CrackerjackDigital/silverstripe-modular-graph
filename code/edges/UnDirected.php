@@ -12,7 +12,7 @@ use Modular\Interfaces\GraphEdge;
 use Modular\Types\SocialActionType;
 use SS_List;
 
-class UnDirected extends \Modular\Models\GraphEdge {
+class UnDirected extends \Modular\Models\Graph\Edge {
 
 
 }

@@ -1,5 +1,7 @@
 <?php
-namespace Modular\Interfaces;
+namespace Modular\Interfaces\Graph;
+
+use Modular\Interfaces\Graph;
 
 use DataObject;
 
@@ -8,22 +10,22 @@ use DataObject;
  *
  * @package Modular\Interfaces
  */
-interface GraphEdgeType extends Graph {
+interface EdgeType extends Graph {
 
 	/**
 	 * Return a graph edge type by it's code.
 	 *
 	 * @param string $typeCode
-	 * @return GraphEdgeType|null
+	 * @return EdgeType|null
 	 */
-	public static function get_by_identity($typeCode);
+	public static function get_by_code($typeCode);
 
 	/**
 	 * Return the name of the field on this edge type used to find them, e.g. 'Code'.
 	 *
 	 * @return string
 	 */
-	public static function identity_field_name($suffix = '');
+	public static function code_field_name($suffix = '');
 
 	/**
 	 * Check we can perform the action represented by the type
