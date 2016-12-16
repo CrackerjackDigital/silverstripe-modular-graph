@@ -7,7 +7,6 @@ use DataObject;
 use Modular\Edges\SocialRelationship;
 use Modular\Exceptions\Graph as Exception;
 use Modular\Interfaces\Graph\EdgeType;
-use Modular\Types\Social\ActionType;
 
 /**
  * Edge
@@ -34,13 +33,20 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	const NodeBFieldName = '';         # 'ToModel'
 	const NodeBLabel     = 'Node B';
 
+	const InjectorName = 'GraphEdge';
+	private static $injector_name = self::InjectorName;
+
+	const InjectorListName = 'GraphEdgeList';
+	private static $injector_list_name = self::InjectorListName;
+
 	private static $default_sort = 'Created DESC';
 
-	// override in concrete classes to use a different class derived from DataList as the list class.
-	private static $list_class_name = '';
+	public static function create() {
+		return \Injector::inst()->createWithArgs(static::config()->get('injector_name') ?: get_called_class(), func_get_args());
+	}
 
 	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null, $containerClass = 'DataList') {
-		if ($listClassName = static::config()->get('list_class_name')) {
+		if ($listClassName = \Injector::inst()->get(static::config()->get('injector_list_name'))->class) {
 			$nested = \Config::nest();
 			$nested->update('Injector', 'DataList', ['class' => $listClassName]);
 			$containerClass = $listClassName;

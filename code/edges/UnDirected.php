@@ -3,7 +3,7 @@ namespace Modular\Edges;
 
 /*
  *
- * @method ActionType ActionType
+ * @method SocialEdgeType SocialEdgeType
  *
  */
 use ArrayList;

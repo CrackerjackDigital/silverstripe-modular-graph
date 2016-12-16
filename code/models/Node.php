@@ -5,15 +5,11 @@ use Modular\Model;
 
 /* abstract */
 class Node extends Model implements \Modular\Interfaces\Graph\Node {
-	public function getModelClass() {
-		return get_class($this);
+	const InjectorName = 'GraphNode';
+	private static $injector_name = self::InjectorName;
+
+	public static function create() {
+		return \Injector::inst()->createWithArgs(static::config()->get('injector_name') ?: get_called_class(), func_get_args());
 	}
 
-	public function getModelID() {
-		return $this->ID;
-	}
-
-	public function getModelInstance() {
-		return $this;
-	}
 }

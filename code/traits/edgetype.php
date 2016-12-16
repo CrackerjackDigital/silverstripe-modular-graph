@@ -34,15 +34,15 @@ trait edgetype {
 	}
 
 	/**
-	 * Returns a list of ActionType records from the database which apply to actions between two models provided (by their class names).
+	 * Returns a list of SocialEdgeType records from the database which apply to actions between two models provided (by their class names).
 	 *
-	 * e.g.     given 'Member', 'Organisation' ( or an instance of each/either) then would return all ActionType records that
-	 *          implement a Edge between 'Member' and 'Organisation' by filtering by ActionType ActionType.FromModelFieldName and ActionType.ToModelFieldName
+	 * e.g.     given 'Member', 'Organisation' ( or an instance of each/either) then would return all SocialEdgeType records that
+	 *          implement a Edge between 'Member' and 'Organisation' by filtering by SocialEdgeType SocialEdgeType.FromModelFieldName and SocialEdgeType.ToModelFieldName
 	 *          fields.
 	 *
-	 *          given 'Member', null returns all ActionType records can be performed going from a Member to any model
+	 *          given 'Member', null returns all SocialEdgeType records can be performed going from a Member to any model
 	 *
-	 *          given null, 'Organisation' returns all ActionType records which can be performed on an Organisation
+	 *          given null, 'Organisation' returns all SocialEdgeType records which can be performed on an Organisation
 	 *
 	 * @param  DataObject|string|array|null $fromModelClass an instance, class name, array of class names or null to not include in filter
 	 * @param  DataObject|string|array|null $toModelClass
@@ -85,7 +85,7 @@ trait edgetype {
 	}
 
 	/**
-	 * Return the possible actions between two objects, optionally restricted by ActionType.ActionType.
+	 * Return the possible actions between two objects, optionally restricted by SocialEdgeType.SocialEdgeType.
 	 *
 	 * @param                   $fromModel
 	 * @param                   $toModel
@@ -136,7 +136,7 @@ trait edgetype {
 	}
 
 	/**
-	 * Return all ActionType records which have the particular code(s) passed as their parent(s).
+	 * Return all SocialEdgeType records which have the particular code(s) passed as their parent(s).
 	 * e.g. passing 'LIK' will return 'MLO', 'MLG' etc which are children of the 'LIK' record. Does not return the
 	 * 'LIK' record.
 	 *
@@ -148,7 +148,7 @@ trait edgetype {
 	}
 
 	/**
-	 * Returns a list of ActionType models which have the provided code or have the code as a Parent.
+	 * Returns a list of SocialEdgeType models which have the provided code or have the code as a Parent.
 	 *
 	 * @param string|DataObject $fromModelClass
 	 * @param string|DataObject $toModelClass
@@ -184,7 +184,7 @@ trait edgetype {
 
 	/**
 	 * Returns all defined Actions from one model to another,
-	 * optionally filtered by passed ActionType.Codes
+	 * optionally filtered by passed SocialEdgeType.Codes
 	 *
 	 * @param string|DataObject $fromModelClass
 	 * @param string|DataObject $toModelClass
@@ -257,7 +257,7 @@ trait edgetype {
 				// now we get more specific; if we were handed a model object it should have an ID so also check that
 				// instance rules are met, such as a previous relationship existing (if just a class was passed to function
 				// then we have a singleton and we can't check these requirements).
-				// This check uses the ActionType.RequirePrevious relationship on the current ActionType
+				// This check uses the SocialEdgeType.RequirePrevious relationship on the current SocialEdgeType
 
 				if ($permissionOK && $toModel->ID && $checkObjectInstances) {
 
@@ -280,7 +280,7 @@ trait edgetype {
 
 				if ($permissionOK) {
 					// now we ask the models to check themselves, e.g. if they require a field to be set outside of the permissions
-					// ActionType model, such as a Member requiring to be Confirmed then the Confirmable extension will
+					// SocialEdgeType model, such as a Member requiring to be Confirmed then the Confirmable extension will
 					// intercept this and check the 'RegistrationConfirmed' field
 					if ($modelCheck = $toModel->extend('checkPermissions', $fromModel, $toModel, $actionCodes)) {
 						$permissionOK = count(array_filter($modelCheck)) != 0;
@@ -327,7 +327,7 @@ trait edgetype {
 	/**
 	 * Checks 'default' rules such as if passed a Member and an SocialOrganisation then the member can only EDT
 	 * if a MemberOrganisationRelationship of type 'CRT' exists. These are set up by the
-	 * ActionType.RequirePrevious relationship.
+	 * SocialEdgeType.RequirePrevious relationship.
 	 *
 	 * @param string|array $actionCodes           - three letter code e.g. 'MEO' for Member edit Organistion
 	 * @param DataObject   $fromModel
@@ -355,7 +355,7 @@ trait edgetype {
 				/** @var ActionType $requiredAction */
 				$requiredAction = ActionType::get()->byID($edgeType->RequirePreviousID);
 
-				// now we have a required ActionType which may be a parent or child
+				// now we have a required SocialEdgeType which may be a parent or child
 				// if a parent we can't check the relationship exists directly, as there
 				// are no Allowed... constraints on a parent, so we need to get the child
 				// action which matches the parent code. e.g. for a CRT we need to
@@ -427,7 +427,7 @@ trait edgetype {
 				/** @var \Modular\Interfaces\Graph\EdgeType $requiredAction */
 				if ($requiredAction = static::get()->byID($edgeType->RequirePreviousID)) {
 
-					// get the relationship class name for this particular ActionType
+					// get the relationship class name for this particular SocialEdgeType
 					/** @var Edge|string $relationshipClassName */
 					$relationshipClassName = $edgeType->getRelationshipClassName();
 
