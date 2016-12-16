@@ -17,8 +17,8 @@ use Modular\Types\Social\ActionType;
  * @property Node ToNode
  *
  */
+/* abstract */
 
-/** abstract if SS would allow it */
 class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 
 	const EdgeTypeClassName = '';           # 'Modular\Types\GraphEdgeType' or derived class
@@ -30,11 +30,27 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	const NodeAFieldName = '';       # 'FromModel'
 	const NodeALabel     = 'Node A';
 
-	const NodeBClassName = '';         # 'Modular\Models\Node' or 'Modular\Models\SocialOrganisation'
+	const NodeBClassName = '';         # 'Modular\Models\Node' or 'Modular\Models\Social\Organisation'
 	const NodeBFieldName = '';         # 'ToModel'
 	const NodeBLabel     = 'Node B';
 
 	private static $default_sort = 'Created DESC';
+
+	// override in concrete classes to use a different class derived from DataList as the list class.
+	private static $list_class_name = '';
+
+	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null, $containerClass = 'DataList') {
+		if ($listClassName = static::config()->get('list_class_name')) {
+			$nested = \Config::nest();
+			$nested->update('Injector', 'DataList', ['class' => $listClassName]);
+			$containerClass = $listClassName;
+		}
+		$list = parent::get($callerClass, $filter, $sort, $join, $limit, $containerClass);
+		if ($listClassName) {
+			\Config::unnest();
+		}
+		return $list;
+	}
 
 	/**
 	 * Returns a list of all edges which match on supplied models, edge types and edge type variants, not necessarily in any order.
@@ -46,7 +62,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	 * @return \DataList
 	 */
 	protected static function graph($nodeA, $nodeB, $typeCodes = [], $typeVariant = '') {
-		$graph = \DataObject::get(get_called_class());
+		$graph = static::get(get_called_class());
 		if ($nodeA) {
 			$nodeAID = is_numeric($nodeA) ? $nodeA : $nodeA->ID;
 			$graph = $graph->filter([
@@ -60,7 +76,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 			]);
 		}
 		if ($typeCodes) {
-			$typeIDs = EdgeType::get_for_models(
+			$typeIDs = static::edge_type()->get_for_models(
 				static::node_a_class_name(),
 				static::node_b_class_name(),
 				$typeCodes
@@ -126,8 +142,8 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
-	 * @param DataObject|EdgeType|string|int $edgeType
-	 * @param string|array                   $variantData optional to set on Edge record
+	 * @param \DataObject|EdgeType|string|int $edgeType
+	 * @param string|array                    $variantData optional to set on Edge record
 	 * @return $this
 	 * @throws \Modular\Exceptions\Graph
 	 */
@@ -135,13 +151,13 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 		// yes this is meant to be an '=', the value is being saved for use later in exception.
 		if ($requested = $edgeType) {
 			if (!is_object($edgeType)) {
-				/** @var EdgeType $edgeTypeClass */
+				/** @var EdgeType|\DataObject $edgeTypeClass */
 				$edgeTypeClass = static::type_class_name();
 
 				if (is_int($edgeType)) {
-					$edgeType = EdgeType::get_by_id($edgeType);
+					$edgeType = static::edge_type()->get()->byID($edgeType);
 				} else {
-					$edgeType = EdgeType::get_by_code($edgeTypeClass);
+					$edgeType = static::edge_type()->get_by_code($edgeTypeClass);
 				}
 				if (!$edgeType) {
 					throw new Exception("Couldn't find a '$edgeTypeClass' using '$requested'");
@@ -187,7 +203,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	/**
 	 * Returns the 'NodeA' object instance.
 	 *
-	 * @return \Modular\Interfaces\GraphNode|DataObject
+	 * @return \Modular\Interfaces\Graph\Node|DataObject
 	 */
 	public function getNodeA() {
 		/** @var DataObject $nodeA */
@@ -216,7 +232,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	/**
 	 * Returns the 'NodeB' object instance.
 	 *
-	 * @return \Modular\Interfaces\GraphNode|DataObject
+	 * @return \Modular\Interfaces\Graph\Node|DataObject
 	 */
 	public function getNodeB() {
 		/** @var DataObject $nodeB */
@@ -294,7 +310,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 		$edges = new ArrayList();
 
 		// get a list of GraphEdgeType records (e.g. SocialActionType) between teo models and which handle the provided codes.
-		$edgeTypes = EdgeType::get_for_models($nodeAModel, $nodeBModel, $typeCode);
+		$edgeTypes = static::edge_type()->get_for_models($nodeAModel, $nodeBModel, $typeCode);
 
 		/** @var EdgeType|ActionType $edgeType e.g. a SocialActionType implementor */
 		foreach ($edgeTypes as $edgeType) {
@@ -327,6 +343,10 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 		return $edges;
 	}
 
+	public static function edge_type() {
+		return \Injector::inst()->createWithArgs('EdgeType', func_get_args());
+	}
+
 	/**
 	 * Remove all relationships of a particular type between two models. Only one type allowed!
 	 *
@@ -340,14 +360,14 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	 */
 	public static function remove(DataObject $nodeAModel, DataObject $nodeBModel, $typeCode, $variantType = '') {
 		// check we have permissions to perform supplied relationship
-		if ($ok = EdgeType::check_permission($typeCode, $nodeAModel, $nodeBModel)) {
+		if ($ok = static::edge_type()->check_permission($typeCode, $nodeAModel, $nodeBModel)) {
 			$edges = SocialRelationship::graph(
 				$nodeAModel,
 				$nodeBModel,
 				$typeCode,
 				$variantType
 			);
-			/** @var \Modular\Interfaces\GraphEdge $edge */
+			/** @var \Modular\Interfaces\Graph\Edge $edge */
 			foreach ($edges as $edge) {
 				$ok = $ok && $edge->prune();
 			}
@@ -418,7 +438,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	 * Return the GraphEdgeType derived classes name for this edge type, e.g. 'SocialActionType'
 	 *
 	 * @param string $fieldName
-	 * @return string|GraphEdgeType really a string but add interface for IDE hinting
+	 * @return string|EdgeType really a string but add interface for IDE hinting
 	 */
 	public static function type_class_name($fieldName = '') {
 		return static::EdgeTypeClassName ? (static::EdgeTypeClassName . ($fieldName ? ".$fieldName" : '')) : '';

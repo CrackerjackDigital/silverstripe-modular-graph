@@ -15,7 +15,7 @@ class Edge extends ModelExtension {
 	/**
 	 * Add has_one relationships from node a to node b
 	 *
-	 * @param string|\Modular\Models\GraphEdge $class
+	 * @param string|\Modular\Models\Graph\Edge $class
 	 * @param null                             $extension
 	 * @return array
 	 */

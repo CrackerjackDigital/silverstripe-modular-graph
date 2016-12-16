@@ -19,15 +19,11 @@ class Directed extends \Modular\Models\Graph\Edge {
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
 
-	// these should be override in derived classes or config
-	private static $from_class_name = '';
-	private static $to_class_name = '';
-
-	private static $from_field_name = '';
-	private static $to_field_name = '';
+	private static $list_class_name = 'Modular\Collections\DirectedEdgeList';
 
 	/**
 	 * Make more
+	 *
 	 * @param       $fromModel
 	 * @param       $toModel
 	 * @param array $typeCodes
@@ -186,36 +182,27 @@ class Directed extends \Modular\Models\Graph\Edge {
 	}
 
 	public static function node_a_class_name($fieldName = '') {
-		return static::config()->get('from_class_name')
-			?: (static::NodeAClassName
-				? (static::NodeAFieldName . ($fieldName ? ".$fieldName" : ''))
-				: parent::node_a_class_name($fieldName)
-			);
+		return static::NodeAClassName
+			? (static::NodeAFieldName . ($fieldName ? ".$fieldName" : ''))
+			: parent::node_a_class_name($fieldName);
 	}
 
 	public static function node_b_class_name($fieldName = '') {
-		return static::config()->get('to_class_name')
-			?: (static::NodeBClassName
-				? (static::NodeBFieldName . ($fieldName ? ".$fieldName" : ''))
-				: parent::node_b_class_name($fieldName)
-			);
+		return static::NodeBClassName
+			? (static::NodeBFieldName . ($fieldName ? ".$fieldName" : ''))
+			: parent::node_b_class_name($fieldName);
 	}
 
 	public static function node_a_field_name($suffix = '') {
-		return static::config()->get('from_field_name')
-			?: (static::NodeAClassName
-				? (static::NodeAFieldName . $suffix)
-				: parent::node_a_field_name($suffix)
-			);
-
+		return static::NodeAClassName
+			? (static::NodeAFieldName . $suffix)
+			: parent::node_a_field_name($suffix);
 	}
 
 	public static function node_b_field_name($suffix = '') {
-		return static::config()->get('to_field_name')
-			?: (static::NodeBFieldName
-				? (static::NodeBFieldName . $suffix)
-				: parent::node_b_field_name($suffix)
-			);
+		return static::NodeBFieldName
+			? (static::NodeBFieldName . $suffix)
+			: parent::node_b_field_name($suffix);
 	}
 
 }

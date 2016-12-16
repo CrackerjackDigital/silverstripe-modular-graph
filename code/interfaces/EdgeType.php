@@ -9,8 +9,16 @@ use DataObject;
  * A model or type which is to be used as an Edge should implement this interface
  *
  * @package Modular\Interfaces
+ * @property int RequirePreviousID
  */
 interface EdgeType extends Graph {
+
+	/**
+	 * Return an instance of the EdgeType for the current implementation, e.g. via Injector
+	 * @return mixed
+	 *
+	 */
+	public static function factory();
 
 	/**
 	 * Return a graph edge type by it's code.
