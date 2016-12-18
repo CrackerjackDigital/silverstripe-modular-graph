@@ -45,16 +45,6 @@ interface EdgeType extends Graph {
 	public static function node_b_field_name($suffix = '');
 
 	/**
-	 * Check we can perform the action represented by the type
-	 *
-	 * @param DataObject|string|null $nodeAModel
-	 * @param DataObject|string|null $nodeBModel
-	 * @param string|array $typeCodes
-	 * @return bool
-	 */
-	public static function check_permission($nodeAModel, $nodeBModel, $typeCodes);
-
-	/**
 	 * Return a list of edge types
 	 * e.g. given 'Member', 'Organisation' return all allowed edge type between the two
 	 *      given 'Member', null return all allowed edge types from a Member
@@ -62,19 +52,17 @@ interface EdgeType extends Graph {
 	 *
 	 * @param  DataObject|string|null $fromModelClass
 	 * @param  DataObject|string|null $toModelClass
-	 * @param array                   $typeCodes
 	 * @return \DataList of GraphEdgeType derived classes
 	 */
-	public static function get_for_models($fromModelClass, $toModelClass, $typeCodes = []);
+	public static function get_for_models($fromModelClass, $toModelClass);
 
 	/**
 	 * Build a filter to fetch all GraphEdgesTypes based on this GraphEdgeType instance's settings
 	 *
 	 * @param DataObject|string $nodeAClass
 	 * @param DataObject|string $nodeBClass
-	 * @param array             $typeCodes
-	 * @return array e.g. ['FromModel' => 'ModelA', 'ToModel' => 'ModelB', 'Code' => 'CRT' ]
+	 * @return array e.g. ['FromModel' => 'ModelA', 'ToModel' => 'ModelB' ]
 	 */
-	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []);
+	public static function archtype($nodeAClass, $nodeBClass);
 
 }
