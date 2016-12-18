@@ -14,36 +14,45 @@ use DataObject;
 interface EdgeType extends Graph {
 
 	/**
-	 * Return an instance of the EdgeType for the current implementation, e.g. via Injector
+	 * We need to override implementations of this to provide a custom model if required, though this should be supplied by \DataObject ultimately.
+	 */
+	public static function create();
+
+	/**
+	 * We need to override implementations of this to provide a custom model if required, though this should be supplied by \DataObject ultimately.
+	 * @param null   $callerClass
+	 * @param string $filter
+	 * @param string $sort
+	 * @param string $join
+	 * @param null   $limit
+	 * @param string $containerClass
 	 * @return mixed
-	 *
 	 */
-	public static function factory();
+	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null, $containerClass = 'DataList');
 
 	/**
-	 * Return a graph edge type by it's code.
-	 *
-	 * @param string $typeCode
-	 * @return EdgeType|null
-	 */
-	public static function get_by_code($typeCode);
-
-	/**
-	 * Return the name of the field on this edge type used to find them, e.g. 'Code'.
+	 * Return the name of the field for the 'From' model that this edge handles
 	 *
 	 * @return string
 	 */
-	public static function code_field_name($suffix = '');
+	public static function node_a_field_name($suffix = '');
+
+	/**
+	 * Return the name of the field for the 'To' model that this edge handles
+	 *
+	 * @return string
+	 */
+	public static function node_b_field_name($suffix = '');
 
 	/**
 	 * Check we can perform the action represented by the type
 	 *
-	 * @param $typeCode
-	 * @param $nodeAModel
-	 * @param $nodeBModel
+	 * @param DataObject|string|null $nodeAModel
+	 * @param DataObject|string|null $nodeBModel
+	 * @param string|array $typeCodes
 	 * @return bool
 	 */
-	public static function check_permission($typeCode, $nodeAModel, $nodeBModel);
+	public static function check_permission($nodeAModel, $nodeBModel, $typeCodes);
 
 	/**
 	 * Return a list of edge types

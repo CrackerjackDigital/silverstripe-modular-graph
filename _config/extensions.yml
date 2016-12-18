@@ -1,13 +1,13 @@
 ---
 Name: modular-graph-extensions
 ---
-Modular\Controller\GraphNode:
+Modular\Controllers\Graph\Node:
   extensions:
-    - Modular\Extensions\Controller\Graph\Node
-Modular\Models\GraphNode:
+    - Modular\Extensions\Controller\GraphNode
+Modular\Models\Graph\Node:
   extensions:
+    - Modular\Extensions\Model\GraphNode
     - Modular\Fields\GraphRef
-    - Modular\Extensions\Model\Graph\Node
-Modular\Models\GraphEdge:
+Modular\Edges\Edge:
   extensions:
     - Modular\Fields\GraphRef

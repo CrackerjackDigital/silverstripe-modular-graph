@@ -8,18 +8,15 @@ namespace Modular\Edges;
  */
 use DataList;
 use DataObject;
-use Modular\Interfaces\Graph\Edge;
 
 /* abstract */
 
-class Directed extends \Modular\Models\Graph\Edge {
+class Directed extends Edge {
 	const NodeAFieldName = 'FromModel';
 	const NodeBFieldName = 'ToModel';
 
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
-
-	private static $list_class_name = 'Modular\Collections\DirectedEdgeList';
 
 	/**
 	 * Make more
@@ -85,16 +82,39 @@ class Directed extends \Modular\Models\Graph\Edge {
 	}
 
 	/**
+	 * Return a filter which can be used to select a Edge or edges based on parameters;
+	 *
+	 * @param int|DataObject $nodeAID
+	 * @param int|DataObject $nodeBID
+	 * @return array e.g. [ 'FromModelID' => 10, 'ToModelID' => 20', 'EdgeType.Code' => 'APP' ]
+	 */
+	public static function archtype($nodeAID, $nodeBID, $typeCodes = []) {
+		$fromFieldname = static::node_a_field_name('ID');
+		$toFieldName = static::node_b_field_name('ID');
+		$identityFieldName = static::edge_type_class_name('.Code');
+
+		$nodeAID = is_object($nodeAID) ? $nodeAID->ID : $nodeAID;
+		$nodeBID = is_object($nodeBID) ? $nodeBID->ID : $nodeBID;
+
+		return [
+			$fromFieldname     => $nodeAID,
+			$toFieldName       => $nodeBID,
+			$identityFieldName => $typeCodes,
+		];
+	}
+
+	/**
 	 * Return a list of class names which implement an Edge from a model to another model.
 	 *
 	 * @inheritdoc
 	 *
 	 * @param DataObject|string|null $fromModel
 	 * @param DataObject|string|null $toModel
+	 * @param bool $strict both have to match if true, otherwise either can match
 	 * @return array list of implementation class names
 	 */
-	public static function implementors($fromModel, $toModel) {
-		return parent::implementors($fromModel, $toModel);
+	public static function implementors($fromModel, $toModel, $strict = true) {
+		return parent::implementors($fromModel, $toModel, $strict);
 	}
 
 	/**
@@ -183,20 +203,20 @@ class Directed extends \Modular\Models\Graph\Edge {
 
 	public static function node_a_class_name($fieldName = '') {
 		return static::NodeAClassName
-			? (static::NodeAFieldName . ($fieldName ? ".$fieldName" : ''))
+			? (static::NodeAClassName . ($fieldName ? ".$fieldName" : ''))
 			: parent::node_a_class_name($fieldName);
+	}
+
+	public static function node_a_field_name($suffix = '') {
+		return static::NodeAFieldName
+			? (static::NodeAFieldName . $suffix)
+			: parent::node_a_field_name($suffix);
 	}
 
 	public static function node_b_class_name($fieldName = '') {
 		return static::NodeBClassName
-			? (static::NodeBFieldName . ($fieldName ? ".$fieldName" : ''))
+			? (static::NodeBClassName . ($fieldName ? ".$fieldName" : ''))
 			: parent::node_b_class_name($fieldName);
-	}
-
-	public static function node_a_field_name($suffix = '') {
-		return static::NodeAClassName
-			? (static::NodeAFieldName . $suffix)
-			: parent::node_a_field_name($suffix);
 	}
 
 	public static function node_b_field_name($suffix = '') {

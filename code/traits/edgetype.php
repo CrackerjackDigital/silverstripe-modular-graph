@@ -17,27 +17,10 @@ use SS_List;
 trait edgetype {
 
 	/**
-	 * Return the name of the field used as the unique identity for this edge type, in this case 'Code'.
-	 *
-	 * @return string
-	 */
-	public static function code_field_name($suffix = '') {
-		return self::CodeFieldName . $suffix;
-	}
-
-	public static function from_field_name($suffix = '') {
-		return static::FromModelFieldName . $suffix;
-	}
-
-	public static function to_field_name($suffix = '') {
-		return static::ToModelFieldName . $suffix;
-	}
-
-	/**
 	 * Returns a list of SocialEdgeType records from the database which apply to actions between two models provided (by their class names).
 	 *
 	 * e.g.     given 'Member', 'Organisation' ( or an instance of each/either) then would return all SocialEdgeType records that
-	 *          implement a Edge between 'Member' and 'Organisation' by filtering by SocialEdgeType SocialEdgeType.FromModelFieldName and SocialEdgeType.ToModelFieldName
+	 *          implement a Edge between 'Member' and 'Organisation' by filtering by SocialEdgeType SocialEdgeType.FromFieldName and SocialEdgeType.ToFieldName
 	 *          fields.
 	 *
 	 *          given 'Member', null returns all SocialEdgeType records can be performed going from a Member to any model
@@ -49,11 +32,7 @@ trait edgetype {
 	 * @return \DataList
 	 */
 	public static function get_for_models($fromModelClass, $toModelClass, $typeCodes = []) {
-		// always turn into an array of class names
-		$fromModelClasses = static::derive_class_name($fromModelClass);
-		$toModelClasses = static::derive_class_name($toModelClass);
-
-		$filter = static::archtype($fromModelClasses, $toModelClasses, $typeCodes);
+		$filter = static::archtype($fromModelClass, $toModelClass, $typeCodes);
 		return static::get()->filter($filter);
 	}
 
@@ -68,18 +47,20 @@ trait edgetype {
 	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []) {
 		$fromFieldName = static::from_field_name();
 		$toFieldName = static::to_field_name();
-		$identifyFieldName = self::code_field_name();
+		$codeFieldName = static::code_field_name();
+		$nodeAClass = static::derive_class_name($nodeAClass);
+		$nodeBClass = static::derive_class_name($nodeBClass);
 
 		$archtype = [];
 
-		if ($nodeAClass = static::derive_class_name($nodeAClass)) {
+		if ($nodeAClass) {
 			$archtype[ $fromFieldName ] = $nodeAClass;
 		}
-		if ($nodeBClass = static::derive_class_name($nodeBClass)) {
+		if ($nodeBClass) {
 			$archtype[ $toFieldName ] = $nodeBClass;
 		}
 		if ($typeCodes) {
-			$archtype[ $identifyFieldName ] = $typeCodes;
+			$archtype[ $codeFieldName ] = $typeCodes;
 		}
 		return $archtype;
 	}
@@ -213,20 +194,16 @@ trait edgetype {
 	 * If the from object is not supplied then the current member is tried, if not logged in then the Guest Member is
 	 * used.
 	 *
-	 * @param string|array      $actionCodes
 	 * @param DataObject|string $fromModel                 - either class name or an instance of it
 	 * @param DataObject|string $toModel                   - either class name or an instance of it
+	 * @param string|array      $typeCodes                 - codes to check
 	 * @param null              $member
 	 * @param bool              $checkObjectInstances      - if we have instances of the from and to models then check
 	 *                                                     rules are met
 	 * @return bool|int
 	 */
 	public static function check_permission(
-		$actionCodes,
-		$fromModel,
-		$toModel,
-		$member = null,
-		$checkObjectInstances = true
+		$fromModel, $toModel, $typeCodes, $member = null, $checkObjectInstances = true
 	) {
 		// sometimes we only have the model class name to go on, get a singleton to make things easier
 		$toModel = ($toModel instanceof DataObject) ? $toModel : singleton($toModel);
@@ -237,7 +214,7 @@ trait edgetype {
 		}
 		$permissionOK = false;
 
-		$actions = static::get_heirarchy($fromModel, $toModel, $actionCodes);
+		$actions = static::get_heirarchy($fromModel, $toModel, $typeCodes);
 
 		// get the ids of permissions for the allowed relationships (and Codes to help debugging)
 		if ($permissionIDs = $actions->map('PermissionID', self::code_field_name())->toArray()) {
@@ -261,19 +238,19 @@ trait edgetype {
 
 				if ($permissionOK && $toModel->ID && $checkObjectInstances) {
 
-					$actionCodes = $actions->column(self::code_field_name());
+					$typeCodes = $actions->column(self::code_field_name());
 
 					$permissionOK = static::check_rules(
 						$fromModel,
 						$toModel,
-						$actionCodes
+						$typeCodes
 					);
 
 					if (!$permissionOK) {
 						$permissionOK = static::check_implied_rules(
 							$fromModel,
 							$toModel,
-							$actionCodes
+							$typeCodes
 						);
 					}
 				}
@@ -282,7 +259,7 @@ trait edgetype {
 					// now we ask the models to check themselves, e.g. if they require a field to be set outside of the permissions
 					// SocialEdgeType model, such as a Member requiring to be Confirmed then the Confirmable extension will
 					// intercept this and check the 'RegistrationConfirmed' field
-					if ($modelCheck = $toModel->extend('checkPermissions', $fromModel, $toModel, $actionCodes)) {
+					if ($modelCheck = $toModel->extend('checkPermissions', $fromModel, $toModel, $typeCodes)) {
 						$permissionOK = count(array_filter($modelCheck)) != 0;
 					}
 				}
@@ -352,8 +329,8 @@ trait edgetype {
 			// NB: only handle has_ones at the moment, need to refactor if we move to multiple previous requirements
 			if ($edgeType->RequirePreviousID) {
 
-				/** @var ActionType $requiredAction */
-				$requiredAction = ActionType::get()->byID($edgeType->RequirePreviousID);
+				/** @var SocialEdgeType $requiredAction */
+				$requiredAction = SocialEdgeType::get()->byID($edgeType->RequirePreviousID);
 
 				// now we have a required SocialEdgeType which may be a parent or child
 				// if a parent we can't check the relationship exists directly, as there
@@ -363,8 +340,8 @@ trait edgetype {
 
 				if (!$requiredAction->ParentID) {
 					$requiredAction = static::get()->filter([
-						static::FromModelFieldName => $fromModel->class,
-						static::ToModelFieldName   => $toModel->class,
+						static::FromFieldName => $fromModel->class,
+						static::ToFieldName   => $toModel->class,
 						self::ParentCodeFieldName      => $requiredAction->Code,
 					])->first();
 				}

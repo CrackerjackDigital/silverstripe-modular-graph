@@ -1,5 +1,5 @@
 <?php
-namespace Modular\Extensions\Model\Graph;
+namespace Modular\Extensions\Model;
 
 use Modular\ModelExtension;
 
@@ -10,18 +10,19 @@ use Modular\ModelExtension;
  * @property int FromNodeID
  * @property int ToNodeID
  */
-class Edge extends ModelExtension {
+class GraphEdge extends ModelExtension {
 
 	/**
 	 * Add has_one relationships from node a to node b
 	 *
-	 * @param string|\Modular\Models\Graph\Edge $class
+	 * @param string|\Modular\Edges\Edge $class
 	 * @param null                             $extension
 	 * @return array
 	 */
 	public function extraStatics($class = null, $extension = null) {
-		$nodeAFieldName = $class::node_a_field_name();
-		$nodeBFieldName = $class::node_b_field_name();
+		$nodeAFieldName = $class::node_a_field_name('');
+		$nodeBFieldName = $class::node_b_field_name('');
+		$edgeTypeFieldName = $class::edge_type_field_name('');
 
 		return array_merge_recursive(
 			parent::extraStatics($class, $extension) ?: [],
@@ -29,6 +30,7 @@ class Edge extends ModelExtension {
 				'has_one'        => [
 					$nodeAFieldName => $class::node_a_class_name(),
 					$nodeBFieldName => $class::node_b_class_name(),
+				    $edgeTypeFieldName => $class::edge_type_class_name()
 				],
 				'summary_fields' => [
 					$nodeAFieldName => $class::node_a_label(),

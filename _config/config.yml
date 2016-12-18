@@ -1,0 +1,11 @@
+---
+Name: modular-graph-config
+---
+# collections
+Modular\Collections\Graph\EdgeList:
+  custom_class_name: Modular\Collections\Graph\DirectedEdgeList     # generally we deal with directed graphs, so From and To syntax
+Modular\Collections\Graph\EdgeTypeList:
+  custom_class_name: Modular\Collections\Graph\DirectedEdgeTypeList
+Modular\Collections\Graph\NodeList:
+  custom_class_name: Modular\Collections\Graph\DirectedNodeList     # generally we deal with directed graphs, so From and To syntax
+
