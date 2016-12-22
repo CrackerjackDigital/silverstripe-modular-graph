@@ -72,40 +72,30 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	/**
 	 * Returns a list of all edges which match on supplied models, edge types and edge type variants, not necessarily in any order.
 	 *
-	 * @param DataObject|int $nodeA       a model or an ID
-	 * @param DataObject|int $nodeB       a model or an ID
-	 * @param array          $typeCodes
-	 * @param string         $typeVariant filter also by extra data set on the Edge
+	 * @param DataObject|int $nodeA  a model or an ID
+	 * @param DataObject|int $nodeB  a model or an ID
 	 * @return \DataList
 	 */
-	protected static function graph($nodeA, $nodeB, $typeCodes = [], $typeVariant = '') {
+	protected static function graph($nodeA, $nodeB) {
 		$graph = static::get(get_called_class());
-		if ($nodeA) {
-			$nodeAID = is_numeric($nodeA) ? $nodeA : $nodeA->ID;
+		if (is_object($nodeA)) {
+			$nodeAID = $nodeA->ID;
+		} else {
+			$nodeAID = is_numeric($nodeA) ? $nodeA : null;
+		}
+		if ($nodeAID) {
 			$graph = $graph->filter([
 				static::node_a_field_name('ID') => $nodeAID,
 			]);
 		}
-		if ($nodeB) {
-			$nodeBID = is_numeric($nodeB) ? $nodeB : $nodeB->ID;
-			$graph = $graph->filter([
-				static::node_b_field_name('ID') => $nodeBID,
-			]);
+		if (is_object($nodeB)) {
+			$nodeBID = $nodeB->ID;
+		} else {
+			$nodeBID = is_numeric($nodeB) ? $nodeB : null;
 		}
-		if ($typeCodes) {
-			$typeIDs = static::edge_type()->get_for_models(
-				static::node_a_class_name(),
-				static::node_b_class_name(),
-				$typeCodes
-			)->column('ID');
-
+		if ($nodeBID) {
 			$graph = $graph->filter([
-				static::edge_type_field_name() => $typeIDs,
-			]);
-		}
-		if ($typeVariant) {
-			$graph = $graph->filter([
-				self::TypeVariantFieldName => $typeVariant,
+				static::node_a_field_name('ID') => $nodeBID,
 			]);
 		}
 		return $graph;
@@ -172,7 +162,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	 * @return $this
 	 * @throws \Modular\Exceptions\Graph
 	 */
-	public function setEdgeType($edgeType, $variantData = []) {
+	public function setEdgeType($edgeType) {
 		// yes this is meant to be an '=', the value is being saved for use later in exception.
 		if ($requested = $edgeType) {
 			if (!is_object($edgeType)) {
@@ -194,21 +184,6 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 			throw new Exception("Can't set an edge type to '$edgeType'");
 		}
 		$this->{static::edge_type_field_name('ID')} = $edgeType;
-
-		// now set the variant data on the Edge if passed
-		if ($edgeType) {
-			if (is_array($variantData)) {
-				$this->update($variantData);
-			} else if (static::TypeVariantFieldName) {
-				$this->{static::TypeVariantFieldName} = $variantData;
-			}
-		} else {
-			if (is_array($variantData)) {
-				$this->update($variantData);
-			} else if (static::TypeVariantFieldName) {
-				$this->{static::TypeVariantFieldName} = $variantData;
-			}
-		}
 		return $this;
 	}
 
@@ -281,46 +256,46 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 
 	/**
 	 *
-	 * Return the nodeA models related from nodeB by a particular DirectedEdgeType
+	 * Return the nodeA models (not the edges) related from nodeB
 	 *
 	 * @param DataObject $nodeAModel
 	 * @param DataObject $nodeBModel
-	 * @return DataList|ArrayList list of nodeB models with a relationship from nodeA model
+	 * @return DataList list of nodeB models with a relationship from nodeA model
 	 * @api
 	 */
 	public static function node_as(DataObject $nodeAModel, DataObject $nodeBModel) {
+		// first get all the edges between a and b
 		$edges = static::graph($nodeAModel, $nodeBModel);
 
-		if ($edges->count()) {
-			$nodeAFieldName = static::node_a_field_name();
+		// e.g 'FromModelID'
+		$nodeAFieldName = static::node_a_field_name('ID');
 
-			return $nodeAModel::get()->filter([
-				'ID' => $edges->column($nodeAFieldName),
-			]);
-		}
-		return ArrayList::create();
+		// now return all the A models which match the ToFieldID in the edges found
+		return $nodeAModel::get()->filter([
+			'ID' => $edges->column($nodeAFieldName),
+		]);
 	}
 
 	/**
 	 *
-	 * Return the nodeB models related to nodeA by a particular DirectedEdgeType
+	 * Return the nodeB models (not the edges) related to nodeA
 	 *
 	 * @param DataObject $nodeAModel
 	 * @param DataObject $nodeBModel
-	 * @return \ArrayList|\DataList list of nodeB models with a relationship from nodeA model
+	 * @return DataList list of nodeB models with a relationship from nodeA model
 	 * @api
 	 */
 	public static function node_bs(DataObject $nodeAModel, DataObject $nodeBModel) {
+		// first get all the edges between a and b
 		$edges = static::graph($nodeAModel, $nodeBModel);
 
-		if ($edges->count()) {
-			$nodeBFieldName = static::node_b_field_name();
+		// e.g. 'ToModelID'
+		$nodeBFieldName = static::node_b_field_name('ID');
 
-			return $nodeBModel::get()->filter([
-				'ID' => $edges->column($nodeBFieldName),
-			]);
-		}
-		return ArrayList::create();
+		// now return all the B models which match the ToFieldID in the edges found
+		return $nodeBModel::get()->filter([
+			'ID' => $edges->column($nodeBFieldName),
+		]);
 	}
 
 	/**

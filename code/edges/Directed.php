@@ -19,15 +19,14 @@ class Directed extends Edge {
 	const NodeBLabel = 'To';
 
 	/**
-	 * Make more
+	 * Alias for graph
 	 *
 	 * @param       $fromModel
 	 * @param       $toModel
-	 * @param array $typeCodes
 	 * @return \DataList
 	 */
-	public static function get_for_models($fromModel, $toModel, $typeCodes = []) {
-		return static::graph($fromModel, $toModel, $typeCodes);
+	public static function get_for_models($fromModel, $toModel) {
+		return static::graph($fromModel, $toModel);
 	}
 
 	/**
@@ -35,11 +34,10 @@ class Directed extends Edge {
 	 *
 	 * @param DataObject $fromModel
 	 * @param DataObject $toModel
-	 * @param array      $typeCodes
 	 * @return DataList
 	 */
-	public static function graph($fromModel, $toModel, $typeCodes = [], $action = '') {
-		return parent::graph($fromModel, $toModel, $typeCodes, $action);
+	public static function graph($fromModel, $toModel) {
+		return parent::graph($fromModel, $toModel);
 	}
 
 	/**
@@ -47,61 +45,13 @@ class Directed extends Edge {
 	 *
 	 * @param        $fromModel
 	 * @param        $toModel
-	 * @param array  $typeCodes
-	 * @param string $action
 	 * @return \DataObject
 	 */
-	public static function one($fromModel, $toModel, $typeCodes = [], $action = '') {
-		return static::graph($fromModel, $toModel, $typeCodes, $action)->first();
+	public static function one($fromModel, $toModel) {
+		return static::graph($fromModel, $toModel)->first();
 	}
 
-	/**
-	 * Return tha latest model which satisfies the supplied parameters.
-	 *
-	 * @param        $fromModel
-	 * @param        $toModel
-	 * @param array  $typeCodes
-	 * @param string $action
-	 * @return \DataObject
-	 */
-	public static function latest($fromModel, $toModel, $typeCodes = [], $action = '') {
-		return static::graph($fromModel, $toModel, $typeCodes, $action)->sort('Created', 'Desc')->first();
-	}
 
-	/**
-	 * Return tha oldest model which satisfies the supplied parameters.
-	 *
-	 * @param        $fromModel
-	 * @param        $toModel
-	 * @param array  $typeCodes
-	 * @param string $action
-	 * @return \DataObject
-	 */
-	public static function oldest($fromModel, $toModel, $typeCodes = [], $action = '') {
-		return static::graph($fromModel, $toModel, $typeCodes, $action)->sort('Created', 'Asc')->first();
-	}
-
-	/**
-	 * Return a filter which can be used to select a Edge or edges based on parameters;
-	 *
-	 * @param int|DataObject $nodeAID
-	 * @param int|DataObject $nodeBID
-	 * @return array e.g. [ 'FromModelID' => 10, 'ToModelID' => 20', 'EdgeType.Code' => 'APP' ]
-	 */
-	public static function archtype($nodeAID, $nodeBID, $typeCodes = []) {
-		$fromFieldname = static::node_a_field_name('ID');
-		$toFieldName = static::node_b_field_name('ID');
-		$identityFieldName = static::edge_type_class_name('.Code');
-
-		$nodeAID = is_object($nodeAID) ? $nodeAID->ID : $nodeAID;
-		$nodeBID = is_object($nodeBID) ? $nodeBID->ID : $nodeBID;
-
-		return [
-			$fromFieldname     => $nodeAID,
-			$toFieldName       => $nodeBID,
-			$identityFieldName => $typeCodes,
-		];
-	}
 
 	/**
 	 * Return a list of class names which implement an Edge from a model to another model.

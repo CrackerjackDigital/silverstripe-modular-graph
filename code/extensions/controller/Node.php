@@ -1,8 +1,8 @@
 <?php
 namespace Modular\Extensions\Controller;
 
-use Modular\ContentControllerExtension;
+use Modular\ModelExtension;
 
-class GraphNode extends ContentControllerExtension {
+class GraphNode extends ModelExtension {
 
 }

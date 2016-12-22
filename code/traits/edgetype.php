@@ -36,10 +36,9 @@ trait edgetype {
 	 *
 	 * @param \DataObject|string $nodeAClass
 	 * @param \DataObject|string $nodeBClass
-	 * @param array              $typeCodes
 	 * @return array e.g. [ 'FromModel' => 'Member', 'ToModel' => 'SocialOrganisation', 'Code' => ['CRT', 'REG'] ]
 	 */
-	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []) {
+	public static function archtype($nodeAClass, $nodeBClass) {
 		$fromFieldName = static::node_a_field_name();
 		$toFieldName = static::node_b_field_name();
 		$nodeAClass = static::derive_class_name($nodeAClass);

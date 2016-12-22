@@ -11,3 +11,6 @@ Modular\Models\Graph\Node:
 Modular\Edges\Edge:
   extensions:
     - Modular\Fields\GraphRef
+Modular\Edges\Directed:
+  extensions:
+    - Modular\Extensions\Edge\DirectedEdgeExtension
