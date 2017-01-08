@@ -1,8 +1,8 @@
 <?php
 namespace Modular\Types\Graph;
 
-use Modular\config;
-use Modular\reflection;
+use Modular\Traits\config;
+use Modular\Traits\reflection;
 use Modular\Traits\custom_create;
 use Modular\Traits\custom_get;
 use Modular\Type;
@@ -47,11 +47,11 @@ class EdgeType extends Type implements \Modular\Interfaces\Graph\EdgeType {
 		return static::custom_get($callerClass, $filter, $sort, $join, $limit, $containerClass);
 	}
 
-	public static function node_a_field_name($suffix = '') {
+	public function nodeAFieldName($suffix = '') {
 		return static::config()->get('node_a_field_name') . $suffix;
 	}
 
-	public static function node_b_field_name($suffix = '') {
+	public function nodeBFieldName($suffix = '') {
 		return static::config()->get('node_b_field_name') . $suffix;
 	}
 

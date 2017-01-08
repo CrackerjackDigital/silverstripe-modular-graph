@@ -1,12 +1,12 @@
 <?php
 namespace Modular\Edges;
 
-use ArrayList;
 use DataList;
 use DataObject;
 use Modular\Exceptions\Graph as Exception;
 use Modular\Interfaces\Graph\EdgeType;
 use Modular\Interfaces\Graph\Node;
+use Modular\Model;
 use Modular\Traits\custom_create;
 use Modular\Traits\custom_get;
 use Modular\Types\Graph\DirectedEdgeType;
@@ -19,25 +19,18 @@ use Modular\Types\Graph\DirectedEdgeType;
  * @property Node ToNode
  *
  */
-/* abstract */
 
-class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
+/* abstract */
+class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	use custom_create;
 	use custom_get;
-
-	const EdgeTypeClassName = '';           # 'Modular\Types\Graph\DirectedEdgeType' or derived class
-	const EdgeTypeFieldName = 'EdgeType';   #
-
-	const TypeVariantFieldName = ''; # 'Action'
-
-	const NodeAClassName = '';       # 'Modular\Models\Node' or 'Member'
-	const NodeAFieldName = '';       # 'FromModel'
-	const NodeALabel     = 'Node A';
-
-	const NodeBClassName = '';         # 'Modular\Models\Node' or 'Modular\Models\Social\Organisation'
-	const NodeBFieldName = '';         # 'ToModel'
-	const NodeBLabel     = 'Node B';
-
+	
+	// should be provided in concrete derived class, e.g 'Directed'
+	const NodeAFieldName = '';
+	
+	// should be provided in concrete derived class, e.g 'Directed'
+	const NodeBFieldName = '';
+	
 	private static $custom_class_name = '';
 	private static $custom_list_class_name = 'Modular\Collections\EdgeList';
 
@@ -183,10 +176,17 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 		} else if (!is_null($edgeType)) {
 			throw new Exception("Can't set an edge type to '$edgeType'");
 		}
-		$this->{static::edge_type_field_name('ID')} = $edgeType;
+		$this->{static::edge_type_filter_field_name('ID')} = $edgeType;
 		return $this;
 	}
-
+	
+	/**
+	 * Set the node instance for 'nodeA'.
+	 *
+	 * @param \DataObject|int|\Modular\Interfaces\Graph\Node $model
+	 * @return $this
+	 * @throws \Modular\Exceptions\Exception
+	 */
 	public function setNodeA($model) {
 		if (is_numeric($model)) {
 			$this->{$this->node_a_field_name()} = $model;
@@ -210,12 +210,20 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
+	 * Defensive way to get node A's ID.
 	 * @return int|null
 	 */
 	protected function getNodeAID() {
 		return ($model = $this->getNodeA()) ? $model->ID : null;
 	}
-
+	
+	/**
+	 * Set the node instance for 'nodeB'.
+	 *
+	 * @param \DataObject|int|\Modular\Interfaces\Graph\Node $model
+	 * @return $this
+	 * @throws \Modular\Exceptions\Exception
+	 */
 	public function setNodeB($model) {
 		if (is_numeric($model)) {
 			$this->{$this->node_b_field_name()} = $model;
@@ -239,6 +247,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
+	 * Defensive way to get node B's ID.
 	 * @return int|null
 	 */
 	protected function getNodeBID() {
@@ -314,7 +323,7 @@ class Edge extends \Modular\Model implements \Modular\Interfaces\Graph\Edge {
 	 * @param string $suffix generally want 'ID" appended when we are dealing with the field name
 	 * @return string
 	 */
-	public static function edge_type_field_name($suffix = 'ID') {
+	public static function edge_type_filter_field_name($suffix = 'ID') {
 		return static::EdgeTypeFieldName ? (static::EdgeTypeFieldName . $suffix) : '';
 	}
 

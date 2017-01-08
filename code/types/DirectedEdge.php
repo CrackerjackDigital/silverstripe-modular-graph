@@ -25,11 +25,11 @@ class DirectedEdgeType extends EdgeType {
 	];
 
 	public static function from_field_name($suffix = '') {
-		return parent::node_a_field_name($suffix);
+		return parent::nodeAFieldName($suffix);
 	}
 
 	public static function to_field_name($suffix = '') {
-		return parent::node_b_field_name($suffix);
+		return parent::nodeBFieldName($suffix);
 	}
 
 }

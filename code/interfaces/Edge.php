@@ -4,6 +4,18 @@ namespace Modular\Interfaces\Graph;
 use Modular\Interfaces\Graph;
 
 interface Edge extends Graph {
+	const EdgeTypeClassName = '';           # 'Modular\Types\Graph\DirectedEdgeType' or derived class
+	const EdgeTypeFieldName = 'EdgeType';   #
+	
+	const TypeVariantFieldName = ''; # 'Action'
+	
+	const NodeAClassName = '';       # 'Modular\Models\Node' or 'Member'
+	const NodeAFieldName = '';       # 'FromModel'
+	const NodeALabel     = 'Node A';
+	
+	const NodeBClassName = '';         # 'Modular\Models\Node' or 'Modular\Models\Social\Organisation'
+	const NodeBFieldName = '';         # 'ToModel'
+	const NodeBLabel     = 'Node B';
 
 	/**
 	 * Do whatever it takes to get this edge out of the system.

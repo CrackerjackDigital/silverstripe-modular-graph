@@ -27,7 +27,7 @@ trait edgetype {
 	 * @return \DataList
 	 */
 	public static function get_for_models($fromModelClass, $toModelClass, $typeCodes = []) {
-		$filter = static::archtype($fromModelClass, $toModelClass, $typeCodes);
+		$filter = static::archetype($fromModelClass, $toModelClass, $typeCodes);
 		return static::get()->filter($filter);
 	}
 
@@ -38,21 +38,21 @@ trait edgetype {
 	 * @param \DataObject|string $nodeBClass
 	 * @return array e.g. [ 'FromModel' => 'Member', 'ToModel' => 'SocialOrganisation', 'Code' => ['CRT', 'REG'] ]
 	 */
-	public static function archtype($nodeAClass, $nodeBClass) {
-		$fromFieldName = static::node_a_field_name();
-		$toFieldName = static::node_b_field_name();
+	public static function archetype($nodeAClass, $nodeBClass) {
+		$fromFieldName = static::nodeAFieldName();
+		$toFieldName = static::nodeBFieldName();
 		$nodeAClass = static::derive_class_name($nodeAClass);
 		$nodeBClass = static::derive_class_name($nodeBClass);
 
-		$archtype = [];
+		$archetype = [];
 
 		if ($nodeAClass) {
-			$archtype[ $fromFieldName ] = $nodeAClass;
+			$archetype[ $fromFieldName ] = $nodeAClass;
 		}
 		if ($nodeBClass) {
-			$archtype[ $toFieldName ] = $nodeBClass;
+			$archetype[ $toFieldName ] = $nodeBClass;
 		}
-		return $archtype;
+		return $archetype;
 	}
 
 	/**
@@ -69,7 +69,7 @@ trait edgetype {
 			? is_array($restrictTo) ? $restrictTo : explode(',', $restrictTo)
 			: null;
 
-		$filter = static::archtype(
+		$filter = static::archetype(
 			$fromModel,
 			$toModel,
 			$restrictTo

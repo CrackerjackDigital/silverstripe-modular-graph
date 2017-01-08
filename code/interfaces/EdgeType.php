@@ -4,22 +4,34 @@ namespace Modular\Interfaces\Graph;
 use Modular\Interfaces\Graph;
 
 use DataObject;
+use Modular\Model;
 
 /**
- * A model or type which is to be used as an Edge should implement this interface
+ * Implemented by models which implement edges and models which implement an EdgeType
  *
  * @package Modular\Interfaces
  * @property int RequirePreviousID
  */
 interface EdgeType extends Graph {
-
+	
 	/**
-	 * We need to override implementations of this to provide a custom model if required, though this should be supplied by \DataObject ultimately.
+	 * Check that an EdgeType can exist (be created or is still valid) between two models.
+	 *
+	 * @param Node|\DataObject|Model $nodeA
+	 * @param Node|\DataObject|Model $nodeB
+	 * @param EdgeType|mixed         $edgeType an EdgeType, ID or Code which can be used to identify an EdgeType
+	 * @return bool
+	 */
+	public static function valid(DataObject $nodeA, DataObject $nodeB, $edgeType);
+	
+	/**
+	 * Return an instance of the Edge or EdgeType, possibly of a custom class.
 	 */
 	public static function create();
-
+	
 	/**
-	 * We need to override implementations of this to provide a custom model if required, though this should be supplied by \DataObject ultimately.
+	 * Return a \DataList or one derived from \DataList.
+	 *
 	 * @param null   $callerClass
 	 * @param string $filter
 	 * @param string $sort
@@ -29,40 +41,25 @@ interface EdgeType extends Graph {
 	 * @return mixed
 	 */
 	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null, $containerClass = 'DataList');
-
+	
 	/**
-	 * Return the name of the field for the 'From' model that this edge handles
+	 * Return the name of the field for the 'nodeA' model that this edge handles, 'FromModelID' in a Directed graph
+	 * edge, or 'FromModel' on a Directed graph EdgeType
 	 *
+	 * @param string $suffix to append to the base field name, in the case of has_many this would be 'ID' to give e.g.
+	 *                       'FromID'
 	 * @return string
 	 */
-	public static function node_a_field_name($suffix = '');
-
+	public static function node_a_field_name($suffix = 'ID');
+	
 	/**
-	 * Return the name of the field for the 'To' model that this edge handles
+	 * Return the name of the field for the nodeB model that this edge handles, e.g 'ToModelID' in a Directed graph
+	 * or 'ToModel' on a Directed graph EdgeType
 	 *
+	 * @param string $suffix to append to the base field name, in the case of has_many this would be 'ID' to give e.g.
+	 *                       'ToID'
 	 * @return string
 	 */
-	public static function node_b_field_name($suffix = '');
-
-	/**
-	 * Return a list of edge types
-	 * e.g. given 'Member', 'Organisation' return all allowed edge type between the two
-	 *      given 'Member', null return all allowed edge types from a Member
-	 *      given nul, 'Organisation' return all allowed edge types to an Organisation
-	 *
-	 * @param  DataObject|string|null $fromModelClass
-	 * @param  DataObject|string|null $toModelClass
-	 * @return \DataList of GraphEdgeType derived classes
-	 */
-	public static function get_for_models($fromModelClass, $toModelClass);
-
-	/**
-	 * Build a filter to fetch all GraphEdgesTypes based on this GraphEdgeType instance's settings
-	 *
-	 * @param DataObject|string $nodeAClass
-	 * @param DataObject|string $nodeBClass
-	 * @return array e.g. ['FromModel' => 'ModelA', 'ToModel' => 'ModelB' ]
-	 */
-	public static function archtype($nodeAClass, $nodeBClass);
-
+	public static function node_b_field_name($suffix = 'ID');
+	
 }

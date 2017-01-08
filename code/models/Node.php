@@ -4,13 +4,20 @@ namespace Modular\Models\Graph;
 use Modular\Model;
 use Modular\Traits\custom_create;
 use Modular\Traits\custom_get;
-
+/**
+ * Node in a graph which is connected to other nodes by Edges.
+ */
 /* abstract */
 class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	use custom_create;
 	use custom_get;
 
+	// setting this will cause an instance of this class to be created whenever Node::create() is called.
+	// see custom_create
 	private static $custom_class_name = '';
+	
+	// setting this will cause an instance of this class to be used instead of \DataList whenever a list is
+	// constructed via ::get(). see custom_get.
 	private static $custom_list_class_name = '';
 
 	/**
