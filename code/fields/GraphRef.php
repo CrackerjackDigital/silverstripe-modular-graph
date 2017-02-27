@@ -2,12 +2,12 @@
 namespace Modular\Fields;
 
 class GraphRef extends UniqueField  {
-	const SingleFieldName = 'GraphRef';
-	const SingleFieldSchema = 'Varchar(255)';
+	const Name = 'GraphRef';
+	const Schema = 'Varchar(255)';
 
 	public function onBeforeWrite() {
-		if (!$this()->{self::SingleFieldName}) {
-			$this()->{self::SingleFieldName} = static::graph_ref($this());
+		if (!$this()->{static::field_name()}) {
+			$this()->{self::field_name()} = static::graph_ref($this());
 		}
 	}
 

@@ -4,6 +4,7 @@ namespace Modular\Edges;
 use DataList;
 use DataObject;
 use Modular\Exceptions\Graph as Exception;
+use Modular\Exceptions\NotImplemented;
 use Modular\Interfaces\Graph\EdgeType;
 use Modular\Interfaces\Graph\Node;
 use Modular\Model;
@@ -24,13 +25,13 @@ use Modular\Types\Graph\DirectedEdgeType;
 class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	use custom_create;
 	use custom_get;
-	
+
 	// should be provided in concrete derived class, e.g 'Directed'
 	const NodeAFieldName = '';
-	
+
 	// should be provided in concrete derived class, e.g 'Directed'
 	const NodeBFieldName = '';
-	
+
 	private static $custom_class_name = '';
 	private static $custom_list_class_name = 'Modular\Collections\EdgeList';
 
@@ -179,7 +180,7 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 		$this->{static::edge_type_filter_field_name('ID')} = $edgeType;
 		return $this;
 	}
-	
+
 	/**
 	 * Set the node instance for 'nodeA'.
 	 *
@@ -216,7 +217,7 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	protected function getNodeAID() {
 		return ($model = $this->getNodeA()) ? $model->ID : null;
 	}
-	
+
 	/**
 	 * Set the node instance for 'nodeB'.
 	 *
@@ -351,4 +352,17 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 		return static::NodeBFieldName ? (static::NodeBFieldName . $suffix) : '';
 	}
 
+	/**
+	 * Return a filter which can be used to select Edges or EdgeTypes.
+	 *
+	 * @param DataObject|string $nodeA    a model instance, ID of an instance or a class name (or null to omit)
+	 * @param DataObject|string $nodeB    a model instance, ID of an instance or a class name (or null to omit)
+	 * @param EdgeType|mixed    $edgeType
+	 * @return array e.g. ['FromModel' => 'Member', 'ToModel' => 'Modular\Models\Social\Organisation' ]
+	 *                                    or [ 'FromModelID' => 10, 'Code' => 'CRT' ]
+	 * @throws \Modular\Exceptions\NotImplemented
+	 */
+	public static function archetype($nodeA = null, $nodeB = null, $edgeType = null) {
+		throw new NotImplemented("Should be implemented in derived class");
+	}
 }

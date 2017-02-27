@@ -38,11 +38,11 @@ trait edgetype {
 	 * @param \DataObject|string $nodeBClass
 	 * @return array e.g. [ 'FromModel' => 'Member', 'ToModel' => 'SocialOrganisation', 'Code' => ['CRT', 'REG'] ]
 	 */
-	public static function archetype($nodeAClass, $nodeBClass) {
-		$fromFieldName = static::nodeAFieldName();
-		$toFieldName = static::nodeBFieldName();
-		$nodeAClass = static::derive_class_name($nodeAClass);
-		$nodeBClass = static::derive_class_name($nodeBClass);
+	public static function archetype($nodeAClass = null, $nodeBClass = null, $filters = null) {
+		$fromFieldName = static::node_a_field_name();
+		$toFieldName = static::node_b_field_name();
+		$nodeAClass = static::derive_class_name($nodeAClass ?: get_called_class());
+		$nodeBClass = static::derive_class_name($nodeBClass ?: get_called_class());
 
 		$archetype = [];
 

@@ -19,7 +19,7 @@ class Directed extends Edge {
 
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
-	
+
 	/**
 	 * Return a filter which can be used to select Edges based on From and To models passed as instances or class names.
 	 * class names.
@@ -29,7 +29,7 @@ class Directed extends Edge {
 	 * @param array|string      $actionTypeCodes single or array of codes
 	 * @return array e.g. ['FromModel' => 'Member', 'ToModel' => 'Modular\Models\Social\Organisation', 'Code' => 'CRT' ]
 	 */
-	public static function archetype($fromModel = null, $toModel = null, $actionTypeCodes = []) {
+	public static function archetype($fromModel = null, $toModel = null, $actionTypeCodes = null) {
 		$filter = [];
 		if ($fromModel) {
 			if (is_int($fromModel)) {
@@ -50,10 +50,10 @@ class Directed extends Edge {
 		if ($actionTypeCodes) {
 			$filter[ static::edge_type_class_name(static::edge_type_filter_field_name()) ] = $actionTypeCodes;
 		}
-		
+
 		return $filter;
 	}
-	
+
 	/**
 	 * Alias for graph
 	 *
@@ -100,7 +100,7 @@ class Directed extends Edge {
 	public static function implementors($fromModel, $toModel, $strict = true) {
 		return parent::implementors($fromModel, $toModel, $strict);
 	}
-	
+
 	/**
 	 * Add directed type 'From' syntax
 	 *
@@ -120,7 +120,7 @@ class Directed extends Edge {
 	public function getFrom() {
 		return parent::getNodeA();
 	}
-	
+
 	/**
 	 * Add directed type 'To' syntax
 	 *
@@ -165,7 +165,7 @@ class Directed extends Edge {
 	public static function from_class_name($fieldName = '') {
 		return static::node_a_class_name($fieldName);
 	}
-	
+
 	/**
 	 * @param string $suffix generally a has_one relationship so default to 'ID'
 	 * @return string
@@ -173,7 +173,7 @@ class Directed extends Edge {
 	public static function from_field_name($suffix = 'ID') {
 		return static::node_a_field_name($suffix);
 	}
-	
+
 	/**
 	 * friendly name for node_b_class_name
 	 *
@@ -183,7 +183,7 @@ class Directed extends Edge {
 	public static function to_class_name($fieldName = '') {
 		return static::node_b_class_name($fieldName);
 	}
-	
+
 	/**
 	 * friendly name for node_b_field_name
 	 *
