@@ -21,6 +21,23 @@ class Directed extends Edge {
 	const NodeBLabel = 'To';
 
 	/**
+	 * Convenience method for directed 'from'.
+	 * @return int|null
+	 */
+	public function fromModelID() {
+		return $this->getNodeAID();
+	}
+
+	/**
+	 * Convenience method for directed 'to'.
+	 *
+	 * @return int|null
+	 */
+	public function toModelID() {
+		return $this->getNodeBID();
+	}
+
+	/**
 	 * Return a filter which can be used to select Edges based on From and To models passed as instances or class names.
 	 * class names.
 	 *

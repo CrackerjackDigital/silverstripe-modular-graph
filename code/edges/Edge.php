@@ -20,15 +20,19 @@ use Modular\Types\Graph\DirectedEdgeType;
  * @property Node ToNode
  *
  */
-
 /* abstract */
+
 class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	use custom_create;
 	use custom_get;
 
+	// model class of the 'NodeA' model (in a directed edge this is the 'from' model)
+	const NodeAClassName = '';
 	// should be provided in concrete derived class, e.g 'Directed'
 	const NodeAFieldName = '';
 
+	// model class of the 'NodeB' model (in a directed edge this is the 'to' model)
+	const NodeBClassName = '';
 	// should be provided in concrete derived class, e.g 'Directed'
 	const NodeBFieldName = '';
 
@@ -66,8 +70,8 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	/**
 	 * Returns a list of all edges which match on supplied models, edge types and edge type variants, not necessarily in any order.
 	 *
-	 * @param DataObject|int $nodeA  a model or an ID
-	 * @param DataObject|int $nodeB  a model or an ID
+	 * @param DataObject|int $nodeA a model or an ID
+	 * @param DataObject|int $nodeB a model or an ID
 	 * @return \DataList
 	 */
 	protected static function graph($nodeA, $nodeB) {
@@ -200,22 +204,21 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
-	 * Returns the 'NodeA' object instance.
+	 * Returns the 'NodeA' ID
 	 *
-	 * @return \Modular\Interfaces\Graph\Node|DataObject
+	 * @return int|null
 	 */
-	public function getNodeA() {
-		/** @var DataObject $nodeA */
-		$nodeA = $this->{$this->node_a_field_name()}();
-		return $nodeA && $nodeA->exists() ? $nodeA : null;
+	public function getNodeAID() {
+		return $this->{$this->node_a_field_name()};
 	}
 
 	/**
-	 * Defensive way to get node A's ID.
-	 * @return int|null
+	 * Returns the 'NodeA' object instance.
+	 *
+	 * @return \DataObject|Node
 	 */
-	protected function getNodeAID() {
-		return ($model = $this->getNodeA()) ? $model->ID : null;
+	protected function getNodeA() {
+		return $this->{$this->node_a_field_name('')}();
 	}
 
 	/**
@@ -237,22 +240,21 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
-	 * Returns the 'NodeB' object instance.
+	 * Returns the 'NodeB' ID
 	 *
-	 * @return \Modular\Interfaces\Graph\Node|DataObject
+	 * @return int|null
 	 */
-	public function getNodeB() {
-		/** @var DataObject $nodeB */
-		$nodeB = $this->{$this->node_b_field_name()}();
-		return $nodeB && $nodeB->exists() ? $nodeB : null;
+	public function getNodeBID() {
+		return $this->{$this->node_b_field_name()};
 	}
 
 	/**
-	 * Defensive way to get node B's ID.
-	 * @return int|null
+	 * Returns the 'NodeB' object instance.
+	 *
+	 * @return \DataObject|Node
 	 */
-	protected function getNodeBID() {
-		return ($model = $this->getNodeB()) ? $model->ID : null;
+	protected function getNodeB() {
+		return $this->{$this->node_b_field_name('')}();
 	}
 
 	/**
