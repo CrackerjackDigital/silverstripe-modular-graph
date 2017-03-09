@@ -24,12 +24,12 @@ class DirectedEdgeType extends EdgeType {
 		'AllowedClassNames' => 'FromModel,ToModel'
 	];
 
-	public static function from_field_name($suffix = '') {
-		return parent::nodeAFieldName($suffix);
+	public static function from_field_name($suffix = 'ID') {
+		return static::node_a_field_name($suffix);
 	}
 
-	public static function to_field_name($suffix = '') {
-		return parent::nodeBFieldName($suffix);
+	public static function to_field_name($suffix = 'ID') {
+		return static::node_b_field_name($suffix);
 	}
 
 }

@@ -23,9 +23,6 @@ use Modular\Types\Graph\DirectedEdgeType;
 /* abstract */
 
 class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
-	use custom_create;
-	use custom_get;
-
 	// model class of the 'NodeA' model (in a directed edge this is the 'from' model)
 	const NodeAClassName = '';
 	// should be provided in concrete derived class, e.g 'Directed'
@@ -37,34 +34,25 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	const NodeBFieldName = '';
 
 	private static $custom_class_name = '';
+
 	private static $custom_list_class_name = 'Modular\Collections\EdgeList';
 
 	private static $default_sort = 'Created DESC';
 
 	/**
-	 * Return an instance of whatever is on config.custom_class_name or just called class.
+	 * Return a filter which can be used to select Edges or EdgeTypes.
 	 *
-	 * @return Directed
+	 * Should be abstract but that breaks ORM.
+	 *
+	 * @param DataObject|string $nodeA    a model instance, ID of an instance or a class name (or null to omit)
+	 * @param DataObject|string $nodeB    a model instance, ID of an instance or a class name (or null to omit)
+	 * @param EdgeType|mixed    $edgeType
+	 * @return array e.g. ['FromModel' => 'Member', 'ToModel' => 'Modular\Models\Social\Organisation' ]
+	 *                                    or [ 'FromModelID' => 10, 'Code' => 'CRT' ]
+	 * @throws \Modular\Exceptions\NotImplemented
 	 */
-	public static function create() {
-		return static::custom_create(func_get_args());
-	}
-
-	/**
-	 * Substitute an alternate list if this class and injector has injector_list_name configured to use instead of the standard DataList.
-	 *
-	 * This list class con be configured on config.custom_list_class_name
-	 *
-	 * @param null   $callerClass
-	 * @param string $filter
-	 * @param string $sort
-	 * @param string $join
-	 * @param null   $limit
-	 * @param string $containerClass
-	 * @return \DataList
-	 */
-	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null, $containerClass = 'DataList') {
-		return static::custom_get($callerClass, $filter, $sort, $join, $limit, $containerClass);
+	public static function archetype($nodeA = null, $nodeB = null, $edgeType = null) {
+		throw new NotImplemented("Should be implemented in derived class");
 	}
 
 	/**
@@ -354,17 +342,4 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 		return static::NodeBFieldName ? (static::NodeBFieldName . $suffix) : '';
 	}
 
-	/**
-	 * Return a filter which can be used to select Edges or EdgeTypes.
-	 *
-	 * @param DataObject|string $nodeA    a model instance, ID of an instance or a class name (or null to omit)
-	 * @param DataObject|string $nodeB    a model instance, ID of an instance or a class name (or null to omit)
-	 * @param EdgeType|mixed    $edgeType
-	 * @return array e.g. ['FromModel' => 'Member', 'ToModel' => 'Modular\Models\Social\Organisation' ]
-	 *                                    or [ 'FromModelID' => 10, 'Code' => 'CRT' ]
-	 * @throws \Modular\Exceptions\NotImplemented
-	 */
-	public static function archetype($nodeA = null, $nodeB = null, $edgeType = null) {
-		throw new NotImplemented("Should be implemented in derived class");
-	}
 }
