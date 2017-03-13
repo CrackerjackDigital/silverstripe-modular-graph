@@ -1,7 +1,7 @@
 <?php
 namespace Modular\Collections\Graph;
 
-use Modular\Edges\Directed;
+use Modular\Edges\DirectedEdge;
 use Modular\Edges\Edge;
 
 /**
@@ -16,7 +16,7 @@ use Modular\Edges\Edge;
 class DirectedEdgeList extends EdgeList {
 	// setting this will use this class for the Node lists returned traversing this edge.
 	private static $custom_class_name = '';
-	
+
 	/**
 	 * Return a list of the 'To' nodes in this list.
 	 *
@@ -34,15 +34,15 @@ class DirectedEdgeList extends EdgeList {
 	public function from() {
 		return static::node_list()->filter('ID', $this->column(static::from_field_name('ID')));
 	}
-	
+
 	/**
-	 * @return Directed
+	 * @return DirectedEdge
 	 */
 	protected static function edge() {
 		static $edge;
-		return $edge ?: $edge = Directed::create();
+		return $edge ?: $edge = DirectedEdge::create();
 	}
-	
+
 	/**
 	 * Returns the 'from field' name for this list's edge model.
 	 * @param string $suffix
@@ -51,7 +51,7 @@ class DirectedEdgeList extends EdgeList {
 	protected static function from_field_name($suffix = 'ID') {
 		return static::edge()->from_field_name($suffix);
 	}
-	
+
 	/**
 	 * Returns the 'to field' name for this list's edge model.
 	 * @param string $suffix

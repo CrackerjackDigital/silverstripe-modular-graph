@@ -1,7 +1,7 @@
 <?php
 namespace Modular\Collections\Graph;
 
-use Modular\Edges\Directed;
+use Modular\Edges\DirectedEdge;
 use Modular\Interfaces\Graph\Edge;
 
 /**
@@ -44,7 +44,7 @@ class DirectedNodeList extends NodeList {
 	 */
 	protected static function edge() {
 		static $edge;
-		return $edge ?: $edge = Directed::create();
+		return $edge ?: $edge = DirectedEdge::create();
 	}
 
 	/**

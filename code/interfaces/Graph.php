@@ -15,17 +15,17 @@ interface Graph {
 	 *                                    or [ 'FromModelID' => 10, 'Code' => 'CRT' ]
 	 */
 	public static function archetype($nodeA = null, $nodeB = null, $edgeType = null);
-	
+
 	/**
 	 * Return the name of the EdgeType class for this graph, e.g. 'Modular\Types\SocialActionType'
 	 * @param string $fieldName
 	 * @return mixed
 	 */
-	public static function edge_type_class_name($fieldName = '');
-	
+	public static function edgetype_class_name($fieldName = '');
+
 	/**
 	 * Return the name of the field on associated EdgeType which is used to filter EdgeTypes
 	 * @return string e.g. 'Code'
 	 */
-	public static function edge_type_filter_field_name();
+	public static function edgetype_field_name();
 }

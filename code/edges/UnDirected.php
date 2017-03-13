@@ -8,7 +8,7 @@ namespace Modular\Edges;
  */
 use Modular\Edges\Edge;
 
-class UnDirected extends Edge {
+class UnDirectedEdge extends Edge {
 
 
 }

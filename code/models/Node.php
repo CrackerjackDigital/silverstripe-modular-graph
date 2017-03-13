@@ -46,7 +46,7 @@ class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	 * @return mixed
 	 * @throws \Modular\Exceptions\NotImplemented
 	 */
-	public static function edge_type_class_name($fieldName = '') {
+	public static function edgetype_class_name($fieldName = '') {
 		throw new NotImplemented("Should be implemented in derived class");
 	}
 
@@ -56,7 +56,7 @@ class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	 * @return string e.g. 'Code'
 	 * @throws \Modular\Exceptions\NotImplemented
 	 */
-	public static function edge_type_filter_field_name() {
+	public static function edgetype_field_name() {
 		throw new NotImplemented("Should be implemented in derived class");
 	}
 }

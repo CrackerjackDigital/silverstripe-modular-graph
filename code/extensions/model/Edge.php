@@ -22,7 +22,7 @@ class GraphEdge extends ModelExtension {
 	public function extraStatics($class = null, $extension = null) {
 		$nodeAFieldName = $class::node_a_field_name('');
 		$nodeBFieldName = $class::node_b_field_name('');
-		$edgeTypeFieldName = $class::edge_type_filter_field_name('');
+		$edgeTypeFieldName = $class::edgetype_field_name('');
 
 		return array_merge_recursive(
 			parent::extraStatics($class, $extension) ?: [],
@@ -30,7 +30,7 @@ class GraphEdge extends ModelExtension {
 				'has_one'        => [
 					$nodeAFieldName => $class::node_a_class_name(),
 					$nodeBFieldName => $class::node_b_class_name(),
-				    $edgeTypeFieldName => $class::edge_type_class_name()
+				    $edgeTypeFieldName => $class::edgetype_class_name()
 				],
 				'summary_fields' => [
 					$nodeAFieldName => $class::node_a_label(),

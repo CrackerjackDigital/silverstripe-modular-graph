@@ -76,7 +76,7 @@ class EdgeType extends Type implements \Modular\Interfaces\Graph\EdgeType {
 	 * @param string $fieldName
 	 * @return mixed
 	 */
-	public static function edge_type_class_name($fieldName = '') {
+	public static function edgetype_class_name($fieldName = '') {
 		return static::EdgeTypeClassName;
 	}
 
@@ -85,7 +85,7 @@ class EdgeType extends Type implements \Modular\Interfaces\Graph\EdgeType {
 	 *
 	 * @return string e.g. 'Code'
 	 */
-	public static function edge_type_filter_field_name() {
+	public static function edgetype_field_name() {
 		return static::EdgeTypeCodeFieldName;
 	}
 

@@ -13,7 +13,7 @@ use Modular\Models\Graph\Node;
 
 /* abstract */
 
-class Directed extends Edge {
+class DirectedEdge extends Edge {
 	const NodeAFieldName = 'FromModel';
 	const NodeBFieldName = 'ToModel';
 
@@ -65,7 +65,7 @@ class Directed extends Edge {
 			}
 		}
 		if ($actionTypeCodes) {
-			$filter[ static::edge_type_class_name(static::edge_type_filter_field_name()) ] = $actionTypeCodes;
+			$filter[ static::edgetype_class_name(static::edgetype_field_name()) ] = $actionTypeCodes;
 		}
 
 		return $filter;
