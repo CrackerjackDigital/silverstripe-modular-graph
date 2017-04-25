@@ -361,13 +361,13 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	 * Return a built filter to filter EdgeTypes by their filter field given value.
 	 * e.g. given a value of 'CFM' returns [ 'RelationshipType.Code' => 'CFM' ]
 	 *
-	 * @param $value
+	 * @param $values
 	 *
 	 * @return mixed
 	 */
-	public static function edgetype_filter( $value ) {
-		return $value
-			? [ static::edgetype_relationship( static::edgetype_field_name() ) => $value ]
+	public static function edgetype_filter( $values ) {
+		return $values
+			? [ static::edgetype_relationship( static::edgetype_field_name() ) => $values ]
 			: [];
 	}
 
