@@ -20,22 +20,6 @@ class DirectedEdge extends Edge {
 	const NodeALabel = 'From';
 	const NodeBLabel = 'To';
 
-	/**
-	 * Convenience method for directed 'from'.
-	 * @return int|null
-	 */
-	public function fromModelID() {
-		return $this->getNodeAID();
-	}
-
-	/**
-	 * Convenience method for directed 'to'.
-	 *
-	 * @return int|null
-	 */
-	public function toModelID() {
-		return $this->getNodeBID();
-	}
 
 	/**
 	 * Return a filter which can be used to select Edges based on From and To models passed as instances or class names.
@@ -116,6 +100,24 @@ class DirectedEdge extends Edge {
 	 */
 	public static function implementors($fromModel, $toModel, $strict = true) {
 		return parent::implementors($fromModel, $toModel, $strict);
+	}
+
+	/**
+	 * Convenience method for directed 'from'.
+	 *
+	 * @return int|null
+	 */
+	public function fromModelID() {
+		return $this->getNodeAID();
+	}
+
+	/**
+	 * Convenience method for directed 'to'.
+	 *
+	 * @return int|null
+	 */
+	public function toModelID() {
+		return $this->getNodeBID();
 	}
 
 	/**
