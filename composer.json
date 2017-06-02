@@ -19,7 +19,6 @@
 	],
 	"require": {
 		"silverstripe/framework": ">=4",
-		"silverstripe/display-logic": "*",
 		"silverstripe-australia/gridfieldextensions": "*",
 		"crackerjackdigital/silverstripe-modular": "*"
 	},
