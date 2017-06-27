@@ -33,7 +33,16 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	// should be provided in concrete derived class, e.g 'Directed'
 	const NodeBFieldName = '';
 
-	// name of the class to use for the Edge Type e.g. 'RelationshipType'
+	// prefixed to edge concrete classes e.g. if was 'Relate_' then 'Relate_NodeANodeB'
+	const EdgeClassPrefix = '';
+
+	// appended to edge concrete classes e.g. 'NodeANodeBEdge'
+	const EdgeClassSuffix = 'Edge';
+
+	// used to join edge classes together e.g. if was '_' then NodeA_NodeB_Edge if also EdgeClassName was '_Edge'
+	const EdgeClassInterstitial = '';
+
+	// name of the base class to use for the Edge Type e.g. 'RelationshipType'
 	const EdgeTypeClassName = '';
 
 	// name of the relationship on this Edge to the Edge Type e.g. 'RelationshipType'
@@ -66,12 +75,44 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	}
 
 	/**
+	 * @param      $fromNodeOrClass
+	 * @param      $toNodeOrClass
+	 * @param null $prefix
+	 * @param null $suffix
+	 * @param null $interstitial
+	 *
+	 * @return string
+	 */
+
+	public static function edge_class_name($fromNodeOrClass, $toNodeOrClass, $prefix = null, $suffix = null, $interstitial = null) {
+		$prefix = is_null($prefix) ? static::EdgeClassPrefix : $prefix;
+		$suffix = is_null($suffix) ? static::EdgeClassSuffix : $suffix;
+		$interstitial = is_null($interstitial) ? static::EdgeClassInterstitial : $interstitial;
+
+		$fromClass = \Modular\Helpers\Reflection::name_from_class_name(
+			is_object( $fromNodeOrClass )
+				? $fromNodeOrClass->ClassName
+				: $fromNodeOrClass
+		);
+
+		$toClass = \Modular\Helpers\Reflection::name_from_class_name(
+			is_object( $toNodeOrClass )
+				? $toNodeOrClass->ClassName
+				: $toNodeOrClass
+		);
+
+		return $prefix . $fromClass . $interstitial . $toClass . $suffix;
+
+	}
+
+	/**
 	 * Returns a list of all edges which match on supplied models, edge types and edge type variants, not necessarily in any order.
 	 *
 	 * @param DataObject|int $nodeA a model or an ID
 	 * @param DataObject|int $nodeB a model or an ID
 	 *
 	 * @return \DataList
+	 * @throws \InvalidArgumentException
 	 */
 	protected static function graph( $nodeA, $nodeB ) {
 		$graph = static::get( get_called_class() );

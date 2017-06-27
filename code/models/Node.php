@@ -1,7 +1,10 @@
 <?php
+
 namespace Modular\Models\Graph;
 
+use ArrayList;
 use DataObject;
+use Modular\Edges\Edge;
 use Modular\Exceptions\NotImplemented;
 use Modular\Interfaces\Graph\EdgeType;
 use Modular\Model;
@@ -28,26 +31,28 @@ class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	/**
 	 * Return a filter which can be used to select Edges or EdgeTypes.
 	 *
-	 * @param DataObject|string $nodeA    a model instance, ID of an instance or a class name (or null to omit)
-	 * @param DataObject|string $nodeB    a model instance, ID of an instance or a class name (or null to omit)
+	 * @param DataObject|string $nodeA a model instance, ID of an instance or a class name (or null to omit)
+	 * @param DataObject|string $nodeB a model instance, ID of an instance or a class name (or null to omit)
 	 * @param EdgeType|mixed    $edgeType
+	 *
 	 * @return array e.g. ['FromModel' => 'Member', 'ToModel' => 'Modular\Models\Social\Organisation' ]
 	 *                                    or [ 'FromModelID' => 10, 'Code' => 'CRT' ]
 	 * @throws \Modular\Exceptions\NotImplemented
 	 */
-	public static function archetype($nodeA = null, $nodeB = null, $edgeType = null) {
-		throw new NotImplemented("Should be implemented in derived class");
+	public static function archetype( $nodeA = null, $nodeB = null, $edgeType = null ) {
+		throw new NotImplemented( "Should be implemented in derived class" );
 	}
 
 	/**
 	 * Return the name of the EdgeType class for this graph, e.g. 'Modular\Types\SocialActionType'
 	 *
 	 * @param string $fieldName
+	 *
 	 * @return mixed
 	 * @throws \Modular\Exceptions\NotImplemented
 	 */
-	public static function edgetype_class_name($fieldName = '') {
-		throw new NotImplemented("Should be implemented in derived class");
+	public static function edgetype_class_name( $fieldName = '' ) {
+		throw new NotImplemented( "Should be implemented in derived class" );
 	}
 
 	/**
@@ -57,6 +62,48 @@ class Node extends Model implements \Modular\Interfaces\Graph\Node {
 	 * @throws \Modular\Exceptions\NotImplemented
 	 */
 	public static function edgetype_field_name() {
-		throw new NotImplemented("Should be implemented in derived class");
+		throw new NotImplemented( "Should be implemented in derived class" );
+	}
+
+	/**
+	 * INCOMPLETE Return all edges which are to the provided class
+	 *
+	 * @param $className
+	 *
+	 * @return \ArrayList|\Modular\Collections\Graph\EdgeList
+	 * @throws \InvalidArgumentException
+	 */
+	public function edges( $className ) {
+		$out = new ArrayList();
+
+		$edgeClass = Edge::class;
+
+		/**
+		 * @var string              $relationshipName e.g. 'Organisations'
+		 * @var \Modular\Edges\Edge $relatedClassName e.g. 'MemberOrganisationRelationship'
+		 */
+		foreach ( $this->config()->get( 'has_many' ) as $relationshipName => $relatedClassName ) {
+			// strip any suffixed field name on the relationship
+			$relatedClassName = preg_replace( '/(.+)?\..+/', '$1', $relatedClassName );
+
+			if ( is_a( $relatedClassName, $edgeClass, true) ) {
+
+				if ( $relatedClassName::node_b_class_name() == $className ) {
+
+					$out = $relatedClassName::get()->filter([
+						$relatedClassName::node_a_field_name() => $this->ID
+					]);
+
+				} else if ( $relatedClassName::node_a_class_name() == $className ) {
+
+					$out = $relatedClassName::get()->filter( [
+						$relatedClassName::node_b_field_name() => $this->ID
+					] );
+
+				}
+			}
+		}
+
+		return $out;
 	}
 }
