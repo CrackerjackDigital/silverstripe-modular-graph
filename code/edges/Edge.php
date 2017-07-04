@@ -1,4 +1,5 @@
 <?php
+
 namespace Modular\Edges;
 
 use DataList;
@@ -16,8 +17,10 @@ use Modular\Types\Graph\DirectedEdgeType;
  * Edge
  *
  * @package Modular\Models
- * @property Node FromNode
- * @property Node ToNode
+ * @property Node FromNodeID
+ * @property Node ToNodeID
+ * @method Node FromNode()
+ * @method Node ToNode()
  *
  */
 /* abstract */
@@ -84,10 +87,10 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	 * @return string
 	 */
 
-	public static function edge_class_name($fromNodeOrClass, $toNodeOrClass, $prefix = null, $suffix = null, $interstitial = null) {
-		$prefix = is_null($prefix) ? static::EdgeClassPrefix : $prefix;
-		$suffix = is_null($suffix) ? static::EdgeClassSuffix : $suffix;
-		$interstitial = is_null($interstitial) ? static::EdgeClassInterstitial : $interstitial;
+	public static function edge_class_name( $fromNodeOrClass, $toNodeOrClass, $prefix = null, $suffix = null, $interstitial = null ) {
+		$prefix       = is_null( $prefix ) ? static::EdgeClassPrefix : $prefix;
+		$suffix       = is_null( $suffix ) ? static::EdgeClassSuffix : $suffix;
+		$interstitial = is_null( $interstitial ) ? static::EdgeClassInterstitial : $interstitial;
 
 		$fromClass = \Modular\Helpers\Reflection::name_from_class_name(
 			is_object( $fromNodeOrClass )
