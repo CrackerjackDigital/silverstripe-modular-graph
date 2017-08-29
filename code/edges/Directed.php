@@ -113,7 +113,7 @@ class DirectedEdge extends Edge {
 	 * @return \DataObject|\Modular\Interfaces\Graph\Node
 	 */
 	public function getFromModel() {
-		return $this->getNodeA();
+		return parent::getNodeA();
 	}
 
 	/**
@@ -122,7 +122,7 @@ class DirectedEdge extends Edge {
 	 * @return \DataObject|\Modular\Interfaces\Graph\Node
 	 */
 	public function getToModel() {
-		return $this->getNodeB();
+		return parent::getNodeB();
 	}
 
 	/**
