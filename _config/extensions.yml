@@ -7,7 +7,9 @@ Modular\Controllers\Graph\Node:
 Modular\Models\Graph\Node:
   extensions:
     - Modular\Extensions\Model\GraphNode
+    - Modular\Extensions\Model\CacheHash
     - Modular\Fields\GraphRef
 Modular\Edges\Edge:
   extensions:
     - Modular\Fields\GraphRef
+    - Modular\Extensions\Model\CacheHash
