@@ -26,5 +26,10 @@
 	"extra": {
 		"installer-name": "modular-graph"
 	},
+	"autoload": {
+		"files": [
+			"autoloader.php"
+		]
+	},
 	"minimum-stability": "dev"
 }
