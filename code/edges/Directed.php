@@ -103,7 +103,7 @@ class DirectedEdge extends Edge {
 	 *
 	 * @return array list of implementation class names
 	 */
-	public static function implementors( $fromModel, $toModel, $strict = true ) {
+	public static function implementors( $fromModel = null, $toModel = null, $strict = true ) {
 		return parent::implementors( $fromModel, $toModel, $strict );
 	}
 

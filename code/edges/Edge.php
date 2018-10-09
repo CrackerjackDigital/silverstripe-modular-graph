@@ -165,12 +165,13 @@ class Edge extends Model implements \Modular\Interfaces\Graph\Edge {
 	 *
 	 * @param DataObject|string $nodeAClass
 	 * @param DataObject|string $nodeBClass
+	 * @param bool              $strict both from and to have to match by name
 	 *
 	 * @return array list of implementation class names
 	 */
-	protected static function implementors( $nodeAClass, $nodeBClass, $strict ) {
-		$nodeAClass = static::derive_class_name( $nodeAClass );
-		$nodeBClass = static::derive_class_name( $nodeBClass );
+	protected static function implementors( $nodeAClass = null, $nodeBClass = null, $strict = true) {
+		$nodeAClass = $nodeAClass ? static::derive_class_name( $nodeAClass ) : '';
+		$nodeBClass = $nodeBClass ? static::derive_class_name( $nodeBClass ) : '';
 
 		$implementors = [];
 
